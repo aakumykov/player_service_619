@@ -22,7 +22,6 @@ import java.util.Map;
 
 public class CustomPlayer extends Binder implements SoundPlayer {
 
-    private static final String TAG = CustomPlayer.class.getSimpleName();
     private final ExoPlayer mExoPlayer;
     private final MyExoPlayerListener mListener;
     @Nullable private SoundPlayerCallbacks mCallbacks;
@@ -36,8 +35,6 @@ public class CustomPlayer extends Binder implements SoundPlayer {
         mListener = new MyExoPlayerListener();
         mExoPlayer.addListener(mListener);
     }
-
-    // FIXME: где освобождать Listener?
 
     @Override
     public void play(@NonNull SoundItem soundItem) {
