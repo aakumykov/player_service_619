@@ -35,7 +35,7 @@ import permissions.dispatcher.RuntimePermissions;
 @RuntimePermissions
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
 
-    private static final int PICK_FILE = R.id.pick_file_request_code;
+    private static final int PICK_FILE_REQUEST_CODE = R.id.pick_file_request_code;
     @Nullable private SoundPlayer mSoundPlayer;
     private ActivityMainBinding mBinding;
 
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (PICK_FILE == requestCode)
+        if (PICK_FILE_REQUEST_CODE == requestCode)
             processPickedFile(resultCode, data);
         else
             super.onActivityResult(requestCode, resultCode, data);
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("audio/*");
-        startActivityForResult(intent, PICK_FILE);
+        startActivityForResult(intent, PICK_FILE_REQUEST_CODE);
     }
 
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
