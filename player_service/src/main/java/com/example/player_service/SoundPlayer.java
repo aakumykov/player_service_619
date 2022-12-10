@@ -23,4 +23,6 @@ public interface SoundPlayer {
     default void unsetCallbacks(SoundPlayerCallbacks customPlayerCallbacks) {}
 
     default LiveData<PlayerState> getPlayerStateLiveData() { return new MutableLiveData<>(); }
+
+    void produceError(Throwable throwable);
 }

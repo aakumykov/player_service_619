@@ -116,6 +116,12 @@ public class CustomPlayer extends Binder implements SoundPlayer {
         return mPlayerStateMutableLiveData;
     }
 
+    @Override
+    public void produceError(Throwable throwable) {
+        mExoPlayer.stop();
+        publishPlayerState(new PlayerState.Error(currentSoundItem(), throwable));
+    }
+
 
     private void publishPlayerState(@NonNull PlayerState playerState) {
 
