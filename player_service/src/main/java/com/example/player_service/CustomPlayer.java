@@ -16,9 +16,9 @@ import com.google.android.exoplayer2.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class CustomPlayer extends Binder implements SoundPlayer {
 
@@ -26,7 +26,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     private final MyExoPlayerListener mListener;
     @Nullable private SoundPlayerCallbacks mCallbacks;
     @Nullable private MutableLiveData<PlayerState> mPlayerStateMutableLiveData;
-    private final Map<String, SoundItem> mSoundItemMap = new HashMap<>();
+    private final SortedMap<String, SoundItem> mSoundItemMap = new TreeMap<>();
 
     public CustomPlayer(ExoPlayer exoPlayer) {
         mExoPlayer = exoPlayer;
