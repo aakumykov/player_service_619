@@ -1,5 +1,6 @@
 package com.example.player_service;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public abstract class PlayerState {
@@ -18,6 +19,11 @@ public abstract class PlayerState {
     }
 
     @Nullable
+    public SoundItem getSoundItem() {
+        return mSoundItem;
+    }
+
+    @Nullable
     public String getTrackTitle() {
         if (null != mSoundItem)
             return mSoundItem.getTitle();
@@ -25,9 +31,9 @@ public abstract class PlayerState {
     }
 
 
-    public static class Stopped extends PlayerState {
-        protected Stopped() {
-            super(Mode.STOPPED, null);
+    public static class Playing extends PlayerState {
+        protected Playing(@Nullable SoundItem soundItem) {
+            super(Mode.PLAYING, soundItem);
         }
     }
 
@@ -37,18 +43,21 @@ public abstract class PlayerState {
         }
     }
 
-    public static class Playing extends PlayerState {
-        protected Playing(@Nullable SoundItem soundItem) {
-            super(Mode.PLAYING, soundItem);
+    public static class Stopped extends PlayerState {
+        protected Stopped() {
+            super(Mode.STOPPED, null);
         }
     }
 
     public static class Error extends PlayerState {
+
         private final Throwable mError;
-        protected Error(Throwable error) {
-            super(Mode.ERROR, null);
+
+        protected Error(@Nullable SoundItem soundItem, @NonNull Throwable error) {
+            super(Mode.ERROR, soundItem);
             mError = error;
         }
+
         public Throwable getError() {
             return mError;
         }

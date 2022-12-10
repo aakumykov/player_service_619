@@ -1,6 +1,5 @@
 package com.example.player_service;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -19,7 +18,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 public class PlayerService extends Service {
 
     private static final String CHANNEL_ID = "Player_service_notification_channel";
-    private static final int NOTIFICATION_ID = R.id.player_service_notification;
+    private static final int NOTIFICATION_ID = R.id.player_notification;
     private CustomPlayer mCustomPlayer;
     private SoundPlayerCallbacks mCustomPlayerCallbacks;
     @Nullable private NotificationCompat.Builder mNotificationsBuilder;
@@ -86,7 +85,8 @@ public class PlayerService extends Service {
         }
 
         @Override
-        public void onError(@NonNull Throwable throwable) {
+        public void onError(@Nullable SoundItem soundItem, @NonNull Throwable throwable) {
+            hidePersistentNotification();
             showErrorNotification(throwable);
         }
     }
@@ -104,34 +104,36 @@ public class PlayerService extends Service {
     }
 
     private void showErrorNotification(Throwable throwable) {
-        showTransientNotification(
+
+        final NotificationCompat.Builder nb = prepareNotification(
                 getString(R.string.playing_error),
                 ExceptionUtils.getErrorMessage(throwable),
                 R.drawable.ic_baseline_error_outline_24);
+
+        nb.setStyle(new NotificationCompat.BigTextStyle());
+
+        NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, nb.build());
     }
 
-    private void showPersistentNotification(@NonNull String title, @NonNull String message, @DrawableRes int iconRes) {
-        startForeground(NOTIFICATION_ID, createNotification(title, message, iconRes));
+    private void showPersistentNotification(@NonNull String title, @NonNull String message,
+                                            @DrawableRes int iconRes) {
+        startForeground(NOTIFICATION_ID, prepareNotification(title, message, iconRes).build());
     }
 
     private void hidePersistentNotification() {
         stopForeground(true);
     }
 
-    private void showTransientNotification(@NonNull String title, @NonNull String message, @DrawableRes int iconRes) {
-        hidePersistentNotification();
-        NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, createNotification(title, message, iconRes));
-    }
 
-    private Notification createNotification(@NonNull String title, @NonNull String message, @DrawableRes int iconRes) {
+    private  NotificationCompat.Builder prepareNotification(@NonNull String title, @NonNull String message,
+                                                            @DrawableRes int iconRes) {
         if (null == mNotificationsBuilder)
             mNotificationsBuilder = new NotificationCompat.Builder(this, CHANNEL_ID);
 
         return mNotificationsBuilder
                 .setSmallIcon(iconRes)
                 .setContentTitle(title)
-                .setContentText(message)
-                .build();
+                .setContentText(message);
     }
 
 
