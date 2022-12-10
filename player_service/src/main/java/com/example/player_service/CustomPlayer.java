@@ -14,14 +14,20 @@ import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CustomPlayer extends Binder implements SoundPlayer {
 
+    private static final String TAG = CustomPlayer.class.getSimpleName();
     private final ExoPlayer mExoPlayer;
     private final MyExoPlayerListener mListener;
     @Nullable private SoundPlayerCallbacks mCallbacks;
     @Nullable private MutableLiveData<PlayerState> mPlayerStateMutableLiveData;
+    private final Map<String, SoundItem> mSoundItemMap = new HashMap<>();
 
     public CustomPlayer(ExoPlayer exoPlayer) {
         mExoPlayer = exoPlayer;
@@ -35,19 +41,22 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
     @Override
     public void play(@NonNull SoundItem soundItem) {
-        mExoPlayer.stop();
-        mExoPlayer.clearMediaItems();
-        mExoPlayer.addMediaItem(soundItem2mediaItem(soundItem));
-        mExoPlayer.prepare();
+        play(Collections.singletonList(soundItem));
     }
 
     @Override
     public void play(List<SoundItem> soundItemList) {
         mExoPlayer.stop();
         mExoPlayer.clearMediaItems();
+        mSoundItemMap.clear();
         for (SoundItem soundItem : soundItemList)
             mExoPlayer.addMediaItem(soundItem2mediaItem(soundItem));
         mExoPlayer.prepare();
+    }
+
+    @Override
+    public void playAgain() {
+        play(new ArrayList<>(mSoundItemMap.values()));
     }
 
     @Override
@@ -56,8 +65,14 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     }
 
     @Override
+    public void resume() {
+        mExoPlayer.play();
+    }
+
+    @Override
     public void stop() {
         mExoPlayer.stop();
+        publishPlayerState(new PlayerState.Stopped());
     }
 
     @Override
@@ -72,6 +87,19 @@ public class CustomPlayer extends Binder implements SoundPlayer {
             mExoPlayer.seekToPrevious();
     }
 
+    @Override
+    public boolean isPlaying() {
+        return mExoPlayer.isPlaying();
+    }
+
+    @Override
+    public boolean isStopped() {
+        PlayerState playerState = null;
+        if (null != mPlayerStateMutableLiveData)
+            playerState = mPlayerStateMutableLiveData.getValue();
+        return playerState instanceof PlayerState.Stopped;
+    }
+
 
     @Override
     public void setCallbacks(SoundPlayerCallbacks callbacks) {
@@ -83,7 +111,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
         if (null == mPlayerStateMutableLiveData)
             mPlayerStateMutableLiveData = new MutableLiveData<>();
 
-        return SoundPlayer.super.getPlayerStateLiveData();
+        return mPlayerStateMutableLiveData;
     }
 
 
@@ -91,11 +119,16 @@ public class CustomPlayer extends Binder implements SoundPlayer {
         if (null != mCallbacks)
             mCallbacks.onPlayerStateChanged(playerState);
 
-        mPlayerStateMutableLiveData.setValue(playerState);
+        if (null != mPlayerStateMutableLiveData)
+            mPlayerStateMutableLiveData.postValue(playerState);
     }
 
     private MediaItem soundItem2mediaItem(SoundItem soundItem) {
+
+        mSoundItemMap.put(soundItem.getId(), soundItem);
+
         return new MediaItem.Builder()
+                .setMediaId(soundItem.getId())
                 .setUri(Uri.fromFile(soundItem.getFile()))
                 .setMediaMetadata(soundItem2mediaMetadata(soundItem))
                 .build();
@@ -117,24 +150,26 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     private class MyExoPlayerListener implements Player.Listener {
 
         @Override
-        public void onEvents(@NonNull Player player, @NonNull Player.Events events) {
-            Player.Listener.super.onEvents(player, events);
+        public void onEvents(@NonNull Player player, @NonNull Player.Events events) {Player.Listener.super.onEvents(player, events);
         }
 
         @Override
         public void onPlaybackStateChanged(int playbackState) {
             switch (playbackState) {
-                case Player.STATE_IDLE:
-                    break;
-                case Player.STATE_BUFFERING:
-                    break;
-                case Player.STATE_READY:
-                    break;
                 case Player.STATE_ENDED:
+                    publishPlayerState(new PlayerState.Stopped());
                     break;
                 default:
                     Player.Listener.super.onPlaybackStateChanged(playbackState);
             }
+        }
+
+        @Override
+        public void onIsPlayingChanged(boolean isPlaying) {
+            if (isPlaying)
+                publishPlayerState(new PlayerState.Playing(currentSoundItem()));
+            else
+                publishPlayerState(new PlayerState.Paused(currentSoundItem()));
         }
 
         @Override
@@ -144,7 +179,20 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
         @Override
         public void onPlayerErrorChanged(@Nullable PlaybackException error) {
-            Player.Listener.super.onPlayerErrorChanged(error);
+            publishPlayerState(new PlayerState.Error(error));
         }
+    }
+
+    @Nullable
+    private SoundItem currentSoundItem() {
+        final MediaItem mediaItem = mExoPlayer.getCurrentMediaItem();
+
+        if (null == mediaItem)
+            return null;
+
+        if (!mSoundItemMap.containsKey(mediaItem.mediaId))
+            return null;
+
+        return mSoundItemMap.get(mediaItem.mediaId);
     }
 }

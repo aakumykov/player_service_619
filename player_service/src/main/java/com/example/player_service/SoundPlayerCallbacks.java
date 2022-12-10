@@ -1,10 +1,12 @@
 package com.example.player_service;
 
+import androidx.annotation.Nullable;
+
 public interface SoundPlayerCallbacks {
     default void onPlayerStateChanged(PlayerState playerState) {}
 
-    default void onPlay(SoundItem soundItem) {}
-    default void onPause(SoundItem soundItem) {}
-    default void onStop(SoundItem soundItem) {}
+    default void onPlay(@Nullable SoundItem soundItem) {}
+    default void onPause(@Nullable SoundItem soundItem) {}
+    default void onStop() {}
     default void onError(Exception e) {}
 }

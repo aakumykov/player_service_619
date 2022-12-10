@@ -57,11 +57,11 @@
             app:srcCompat="@drawable/ic_baseline_skip_previous_24" />
 
         <ImageButton
-            android:id="@+id/pauseButton"
+            android:id="@+id/playPauseButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:srcCompat="@drawable/ic_baseline_pause_24" />
+            app:srcCompat="@drawable/ic_baseline_play_arrow_24" />
 
         <ImageButton
             android:id="@+id/stopButton"

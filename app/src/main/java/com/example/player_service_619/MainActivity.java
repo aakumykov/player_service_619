@@ -15,9 +15,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.player_service.PlayerService;
+import com.example.player_service.PlayerState;
 import com.example.player_service.SoundItem;
 import com.example.player_service.SoundPlayer;
 import com.example.player_service_619.databinding.ActivityMainBinding;
+import com.gitlab.aakumykov.exception_utils_module.ExceptionUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -53,6 +55,33 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         mBinding.playMusicButton.setOnClickListener(v ->
             MainActivityPermissionsDispatcher.playFilesFromMusicWithPermissionCheck(MainActivity.this));
 
+        mBinding.playPauseButton.setOnClickListener(v -> {
+            if (null != mSoundPlayer) {
+                if (mSoundPlayer.isStopped())
+                    mSoundPlayer.playAgain();
+                else
+                    if (mSoundPlayer.isPlaying())
+                        mSoundPlayer.pause();
+                    else
+                        mSoundPlayer.resume();
+            }
+        });
+
+        mBinding.stopButton.setOnClickListener(v -> {
+            if (null != mSoundPlayer)
+                mSoundPlayer.stop();
+        });
+
+        mBinding.skipPrevButton.setOnClickListener(v -> {
+            if (null != mSoundPlayer)
+                mSoundPlayer.skipToPrev();
+        });
+
+        mBinding.skipNextButton.setOnClickListener(v -> {
+            if (null != mSoundPlayer)
+                mSoundPlayer.skipToNext();
+        });
+
         startService(PlayerService.getIntent(this));
     }
 
@@ -85,13 +114,18 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         mSoundPlayer = (SoundPlayer) service;
+
+        if (null != mSoundPlayer)
+            mSoundPlayer.getPlayerStateLiveData().observe(this, this::onPlayerStateChanged);
     }
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        mSoundPlayer = null;
+        if (null != mSoundPlayer) {
+            mSoundPlayer.getPlayerStateLiveData().removeObserver(this::onPlayerStateChanged);
+            mSoundPlayer = null;
+        }
     }
-
 
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     void pickFile() {
@@ -182,4 +216,66 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private void unbindPlayerService() {
         unbindService(this);
     }
+
+
+    private void onPlayerStateChanged(PlayerState playerState) {
+        switch (playerState.getMode()) {
+            case PLAYING:
+                onPlayerPlaying((PlayerState.Playing) playerState);
+                break;
+            case PAUSED:
+                onPlayerPaused((PlayerState.Paused) playerState);
+                break;
+            case STOPPED:
+                onPlayerStopped();
+                break;
+            case ERROR:
+                onPlayerError((PlayerState.Error) playerState);
+                break;
+            default:
+                throw new IllegalArgumentException("Неизвестное значение: "+playerState.getMode());
+        }
+    }
+
+    private void onPlayerPlaying(PlayerState.Playing playerState) {
+        hideError();
+        showTrackTitle(playerState.getTrackTitle());
+        showPauseButton();
+    }
+
+    private void onPlayerPaused(PlayerState.Paused playerState) {
+        showTrackTitle(playerState.getTrackTitle());
+        showPlayPauseButton();
+    }
+
+    private void onPlayerStopped() {
+        hideTrackTitle();
+        showPlayButton();
+    }
+
+    private void onPlayerError(PlayerState.Error errorPlayerState) {
+        showError(ExceptionUtils.getErrorMessage(errorPlayerState.getError()));
+        showPlayButton();
+    }
+
+    private void showPlayButton() {
+        mBinding.playPauseButton.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+    }
+
+    private void showPauseButton() {
+        mBinding.playPauseButton.setImageResource(R.drawable.ic_baseline_pause_24);
+    }
+
+    private void showPlayPauseButton() {
+        mBinding.playPauseButton.setImageResource(R.drawable.ic_play_pause);
+    }
+
+    private void showTrackTitle(String trackTitle) {
+        mBinding.infoView.setText(trackTitle);
+    }
+
+    private void hideTrackTitle() {
+        mBinding.infoView.setText("");
+    }
+
 }

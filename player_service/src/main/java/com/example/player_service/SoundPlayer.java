@@ -10,10 +10,14 @@ public interface SoundPlayer {
 
     void play(@NonNull SoundItem soundItem);
     void play(List<SoundItem> soundItemList);
+    void playAgain();
     void pause();
+    void resume();
     void stop();
     void skipToNext();
     void skipToPrev();
+    boolean isPlaying();
+    boolean isStopped();
 
     default void setCallbacks(SoundPlayerCallbacks callbacks) {};
     default LiveData<PlayerState> getPlayerStateLiveData() { return new MutableLiveData<>(); }

@@ -5,11 +5,11 @@ import androidx.annotation.Nullable;
 public abstract class PlayerState {
 
     private final Mode mMode;
-    @Nullable private final String mTrackTitle;
+    @Nullable private final SoundItem mSoundItem;
 
-    protected PlayerState(final Mode mode, @Nullable final String trackTitle) {
+    protected PlayerState(final Mode mode, @Nullable final SoundItem soundItem) {
         mMode = mode;
-        mTrackTitle = trackTitle;
+        mSoundItem = soundItem;
     }
 
 
@@ -19,7 +19,9 @@ public abstract class PlayerState {
 
     @Nullable
     public String getTrackTitle() {
-        return mTrackTitle;
+        if (null != mSoundItem)
+            return mSoundItem.getTitle();
+        return null;
     }
 
 
@@ -30,14 +32,14 @@ public abstract class PlayerState {
     }
 
     public static class Paused extends PlayerState {
-        protected Paused(String trackTitle) {
-            super(Mode.PAUSED, trackTitle);
+        protected Paused(SoundItem soundItem) {
+            super(Mode.PAUSED, soundItem);
         }
     }
 
     public static class Playing extends PlayerState {
-        protected Playing(String trackTitle) {
-            super(Mode.PLAYING, trackTitle);
+        protected Playing(SoundItem soundItem) {
+            super(Mode.PLAYING, soundItem);
         }
     }
 
