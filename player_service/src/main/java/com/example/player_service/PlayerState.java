@@ -32,13 +32,13 @@ public abstract class PlayerState {
     }
 
     public static class Paused extends PlayerState {
-        protected Paused(SoundItem soundItem) {
+        protected Paused(@Nullable SoundItem soundItem) {
             super(Mode.PAUSED, soundItem);
         }
     }
 
     public static class Playing extends PlayerState {
-        protected Playing(SoundItem soundItem) {
+        protected Playing(@Nullable SoundItem soundItem) {
             super(Mode.PLAYING, soundItem);
         }
     }
