@@ -10,5 +10,5 @@ public interface SoundPlayerCallbacks {
     default void onPlay(@Nullable SoundItem soundItem) {}
     default void onPause(@Nullable SoundItem soundItem) {}
     default void onStop() {}
-    default void onError(@NonNull Throwable throwable) {}
+    default void onError(@Nullable SoundItem soundItem, @NonNull Throwable throwable) {}
 }

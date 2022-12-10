@@ -135,16 +135,18 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
         switch (playerState.getMode()) {
             case PLAYING:
-                mCallbacks.onPlay(currentSoundItem());
+                mCallbacks.onPlay(playerState.getSoundItem());
                 break;
             case PAUSED:
-                mCallbacks.onPause(currentSoundItem());
+                mCallbacks.onPause(playerState.getSoundItem());
                 break;
             case STOPPED:
                 mCallbacks.onStop();
                 break;
             case ERROR:
-                mCallbacks.onError(((PlayerState.Error) playerState).getError());
+                final PlayerState.Error errorPlayerState = (PlayerState.Error) playerState;
+                mCallbacks.onError(errorPlayerState.getSoundItem(), errorPlayerState.getError());
+                break;
             default:
                 EnumUtils.throwUnknownValue(playerState.getMode());
         }
@@ -177,10 +179,6 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     private class MyExoPlayerListener implements Player.Listener {
 
         @Override
-        public void onEvents(@NonNull Player player, @NonNull Player.Events events) {Player.Listener.super.onEvents(player, events);
-        }
-
-        @Override
         public void onPlaybackStateChanged(int playbackState) {
             switch (playbackState) {
                 case Player.STATE_ENDED:
@@ -200,13 +198,9 @@ public class CustomPlayer extends Binder implements SoundPlayer {
         }
 
         @Override
-        public void onPlayerError(@NonNull PlaybackException error) {
-            Player.Listener.super.onPlayerError(error);
-        }
-
-        @Override
         public void onPlayerErrorChanged(@Nullable PlaybackException error) {
-            publishPlayerState(new PlayerState.Error(error));
+            Exception e = (null == error) ? new RuntimeException("null") : error;
+            publishPlayerState(new PlayerState.Error(currentSoundItem(), e));
         }
     }
 
