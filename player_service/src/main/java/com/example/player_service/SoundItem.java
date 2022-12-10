@@ -1,30 +1,34 @@
 package com.example.player_service;
 
+import static com.github.aakumykov.argument_utils.ArgumentUtils.checkNotNull;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.io.File;
 
 public class SoundItem {
 
-    private final String mId;
-    private final File mFile;
-    private final String mTitle;
+    @NonNull private final String mId;
+    @NonNull private final File mFile;
+    @NonNull private final String mTitle;
 
-    public SoundItem(@NonNull String id, @NonNull String title, @Nullable File file) {
-        mId = id;
-        mTitle = title;
-        mFile = file;
+    public SoundItem(@NonNull String id, @NonNull String title, @NonNull File file) throws NullPointerException {
+        mId = checkNotNull(id);
+        mTitle = checkNotNull(title);
+        mFile = checkNotNull(file);
     }
 
+    @NonNull
     public String getId() {
         return mId;
     }
 
+    @NonNull
     public File getFile() {
         return mFile;
     }
 
+    @NonNull
     public String getTitle() {
         return mTitle;
     }
