@@ -19,6 +19,8 @@ public interface SoundPlayer {
     boolean isPlaying();
     boolean isStopped();
 
-    default void setCallbacks(SoundPlayerCallbacks callbacks) {};
+    default void setCallbacks(SoundPlayerCallbacks callbacks) {}
+    default void unsetCallbacks(SoundPlayerCallbacks customPlayerCallbacks) {}
+
     default LiveData<PlayerState> getPlayerStateLiveData() { return new MutableLiveData<>(); }
 }

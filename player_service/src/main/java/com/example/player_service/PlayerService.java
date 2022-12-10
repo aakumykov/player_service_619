@@ -1,20 +1,28 @@
 package com.example.player_service;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationChannelCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.gitlab.aakumykov.exception_utils_module.ExceptionUtils;
 import com.google.android.exoplayer2.ExoPlayer;
 
 public class PlayerService extends Service {
 
     private static final String CHANNEL_ID = "Player_service_notification_channel";
+    private static final int NOTIFICATION_ID = R.id.player_service_notification;
     private CustomPlayer mCustomPlayer;
+    private SoundPlayerCallbacks mCustomPlayerCallbacks;
+    @Nullable private NotificationCompat.Builder mNotificationsBuilder;
 
     public static Intent getIntent(Context context) {
         return new Intent(context, PlayerService.class);
@@ -28,23 +36,24 @@ public class PlayerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        final ExoPlayer exoPlayer = new ExoPlayer.Builder(this).build();
-        mCustomPlayer = new CustomPlayer(exoPlayer);
+        preparePlayer();
         prepareNotificationChannel();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mCustomPlayer.unsetCallbacks(mCustomPlayerCallbacks);
         mCustomPlayer.release();
     }
 
-    public SoundPlayer getSoundPlayer() {
-        return mCustomPlayer;
-    }
 
-    public void stop() {
-        stopSelf();
+    private void preparePlayer() {
+        final ExoPlayer exoPlayer = new ExoPlayer.Builder(this).build();
+        mCustomPlayer = new CustomPlayer(exoPlayer);
+
+        mCustomPlayerCallbacks = new CustomPlayerCallbacks();
+        mCustomPlayer.setCallbacks(mCustomPlayerCallbacks);
     }
 
 
@@ -58,20 +67,79 @@ public class PlayerService extends Service {
                 .build();
     }
 
-    /*private void showPersistentNotification() {
-        startForeground(R.id.player_service_notification, notification());
+
+    private class CustomPlayerCallbacks implements SoundPlayerCallbacks {
+
+        @Override
+        public void onPlay(@Nullable SoundItem soundItem) {
+            showPlayingNotification(titleFromSoundItem(soundItem));
+        }
+
+        @Override
+        public void onPause(@Nullable SoundItem soundItem) {
+            showPauseNotification(titleFromSoundItem(soundItem));
+        }
+
+        @Override
+        public void onStop() {
+            hideNotification();
+        }
+
+        @Override
+        public void onError(@NonNull Throwable throwable) {
+            showErrorNotification(throwable);
+        }
+    }
+
+    private void showPlayingNotification(String trackTitle) {
+        showPersistentNotification(trackTitle, getString(R.string.sound_track_playing), R.drawable.ic_baseline_audiotrack_24);
+    }
+
+    private void showPauseNotification(String trackTitle) {
+        showPersistentNotification(trackTitle, getString(R.string.sound_track_paused), R.drawable.ic_baseline_audiotrack_24);
+    }
+
+    private void hideNotification() {
+        hidePersistentNotification();
+    }
+
+    private void showErrorNotification(Throwable throwable) {
+        showTransientNotification(
+                getString(R.string.playing_error),
+                ExceptionUtils.getErrorMessage(throwable),
+                R.drawable.ic_baseline_error_outline_24);
+    }
+
+    private void showPersistentNotification(@NonNull String title, @NonNull String message, @DrawableRes int iconRes) {
+        startForeground(NOTIFICATION_ID, createNotification(title, message, iconRes));
     }
 
     private void hidePersistentNotification() {
         stopForeground(true);
-    }*/
+    }
 
-    /*private Notification notification() {
-        return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_service_notification)
-                .setContentTitle(getString(R.string.PLAYER_SERVICE_notification_title))
-                .setContentText(getString(R.string.PLAYER_SERVICE_notification_text))
+    private void showTransientNotification(@NonNull String title, @NonNull String message, @DrawableRes int iconRes) {
+        hidePersistentNotification();
+        NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, createNotification(title, message, iconRes));
+    }
+
+    private Notification createNotification(@NonNull String title, @NonNull String message, @DrawableRes int iconRes) {
+        if (null == mNotificationsBuilder)
+            mNotificationsBuilder = new NotificationCompat.Builder(this, CHANNEL_ID);
+
+        return mNotificationsBuilder
+                .setSmallIcon(iconRes)
+                .setContentTitle(title)
+                .setContentText(message)
                 .build();
-    }*/
+    }
 
+
+    @NonNull
+    private String titleFromSoundItem(@Nullable SoundItem soundItem) {
+        String title = (null != soundItem) ? soundItem.getTitle() : getString(R.string.no_title);
+        if (null == title)
+            title = getString(R.string.no_title);
+        return title;
+    }
 }

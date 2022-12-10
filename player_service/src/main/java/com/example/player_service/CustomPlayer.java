@@ -104,6 +104,11 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     }
 
     @Override
+    public void unsetCallbacks(SoundPlayerCallbacks customPlayerCallbacks) {
+        mCallbacks = null;
+    }
+
+    @Override
     public LiveData<PlayerState> getPlayerStateLiveData() {
         if (null == mPlayerStateMutableLiveData)
             mPlayerStateMutableLiveData = new MutableLiveData<>();
@@ -113,11 +118,36 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
 
     private void publishPlayerState(@NonNull PlayerState playerState) {
+
         if (null != mCallbacks)
             mCallbacks.onPlayerStateChanged(playerState);
 
+        playerState2specificCallback(playerState);
+
         if (null != mPlayerStateMutableLiveData)
             mPlayerStateMutableLiveData.postValue(playerState);
+    }
+
+    private void playerState2specificCallback(@NonNull PlayerState playerState) {
+
+        if (null == mCallbacks)
+            return;
+
+        switch (playerState.getMode()) {
+            case PLAYING:
+                mCallbacks.onPlay(currentSoundItem());
+                break;
+            case PAUSED:
+                mCallbacks.onPause(currentSoundItem());
+                break;
+            case STOPPED:
+                mCallbacks.onStop();
+                break;
+            case ERROR:
+                mCallbacks.onError(((PlayerState.Error) playerState).getError());
+            default:
+                EnumUtils.throwUnknownValue(playerState.getMode());
+        }
     }
 
     private MediaItem soundItem2mediaItem(SoundItem soundItem) {
@@ -182,6 +212,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
     @Nullable
     private SoundItem currentSoundItem() {
+
         final MediaItem mediaItem = mExoPlayer.getCurrentMediaItem();
 
         if (null == mediaItem)

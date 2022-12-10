@@ -42,6 +42,8 @@
         android:id="@+id/infoView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAlignment="center"
+        tools:text="Название трека"
         android:padding="8dp" />
 
     <LinearLayout

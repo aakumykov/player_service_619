@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="PLAYER_SERVICE_notification_channel_name">Уведомления плеера</string>
+    <string name="no_title">Нет заголовка</string>
+    <string name="sound_track_paused">Приостановлено</string>
+    <string name="sound_track_playing">Воспроизводится</string>
+    <string name="playing_error">Ошибка воспроизведения</string>
 </resources>
