@@ -15,4 +15,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "player_service_619"
 include ':app'
-include ':player_service'
