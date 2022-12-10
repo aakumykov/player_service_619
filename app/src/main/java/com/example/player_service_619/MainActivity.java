@@ -24,10 +24,10 @@ import com.gitlab.aakumykov.exception_utils_module.ExceptionUtils;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         if (null == files)
             return new ArrayList<>();
 
-        return new ArrayList<>(Arrays.asList(files));
+        return Stream.of(files).sorted().collect(Collectors.toList());
     }
 
 
