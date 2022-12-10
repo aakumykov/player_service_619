@@ -82,11 +82,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 mSoundPlayer.skipToNext();
         });
 
-        mBinding.errorButton.setOnClickListener(v -> {
-            if (null != mSoundPlayer)
-                mSoundPlayer.produceError(new RuntimeException(getString(R.string.testing_error)));
-        });
-
         startService(PlayerService.getIntent(this));
     }
 
