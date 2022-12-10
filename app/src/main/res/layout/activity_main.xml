@@ -10,13 +10,15 @@
         android:id="@+id/pickFileButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="Выбрать файл" />
+        android:layout_weight="0"
+        android:text="Выбрать файл"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/playDownloadsButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="0"
         android:backgroundTint="#4CAF50"
         android:text="Играть из Downloads"
         android:textAllCaps="false" />
@@ -25,30 +27,46 @@
         android:id="@+id/playMusicButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="0"
         android:backgroundTint="#FF9800"
         android:text="Играть из Music"
         android:textAllCaps="false" />
 
     <TextView
-        android:id="@+id/errorView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/error_msg"
-        android:padding="8dp"
-        tools:visibility="visible"
-        android:visibility="gone" />
-
-    <TextView
         android:id="@+id/infoView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:padding="8dp"
         android:textAlignment="center"
-        tools:text="Название трека"
-        android:padding="8dp" />
+        tools:text="Название трека" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/errorView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:textColor="@color/error_msg"
+                android:visibility="gone"
+                tools:text="@string/testing_error"
+                tools:visibility="visible" />
+        </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="0"
         android:orientation="horizontal">
 
         <ImageButton
@@ -79,5 +97,14 @@
             android:layout_weight="1"
             app:srcCompat="@drawable/ic_baseline_skip_next_24" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/errorButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:backgroundTint="#E91E63"
+        android:text="Показать ошибку"
+        android:textAllCaps="false" />
 
 </LinearLayout>
