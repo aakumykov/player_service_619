@@ -2,27 +2,22 @@ package com.github.aakumykov.player_service;
 
 import android.os.Binder;
 
-import com.github.aakumykov.single_live_event.SingleLiveEvent;
-
-public class ServicePayloadHolder<T> extends Binder implements CommandPublisher {
+public class ServicePayloadHolder<T> extends Binder {
 
     private final T mPayload;
-    private final SingleLiveEvent<NotificationCommand> mNotificationCommandSingleLiveEvent = new SingleLiveEvent<>();
+    private final PlayerService mPlayerService;
 
-    public ServicePayloadHolder(T payload) {
+    public ServicePayloadHolder(PlayerService playerService, T payload) {
+        mPlayerService = playerService;
         mPayload = payload;
+    }
+
+    public PlayerService getPlayerService() {
+        return mPlayerService;
     }
 
     public T getPayload() {
         return mPayload;
     }
 
-    @Override
-    public SingleLiveEvent<NotificationCommand> getNotificationCommands() {
-        return mNotificationCommandSingleLiveEvent;
-    }
-
-    public void sendCommandFromNotification(NotificationCommand command) {
-        mNotificationCommandSingleLiveEvent.setValue(command);
-    }
 }

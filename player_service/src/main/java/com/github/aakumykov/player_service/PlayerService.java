@@ -1,5 +1,6 @@
 package com.github.aakumykov.player_service;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -19,9 +20,11 @@ public class PlayerService extends Service {
 
     private static final String CHANNEL_ID = "Player_service_notification_channel";
     private static final int NOTIFICATION_ID = R.id.player_notification;
+    private static final int OPEN_ACTIVITY_REQUEST_CODE = R.id.open_main_activity_request_code;
     private ServicePayloadHolder<CustomPlayer> mServicePayloadHolder;
     private SoundPlayerCallbacks mCustomPlayerCallbacks;
     @Nullable private NotificationCompat.Builder mNotificationsBuilder;
+    @Nullable private PendingIntent mContentIntent;
 
     public static Intent getIntent(Context context) {
         return new Intent(context, PlayerService.class);
@@ -47,6 +50,12 @@ public class PlayerService extends Service {
     }
 
 
+    public void setContentIntent(@NonNull Intent contentIntent) {
+        mContentIntent = PendingIntent.getActivity(this, OPEN_ACTIVITY_REQUEST_CODE,
+                contentIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+
     private void prepareServicePayload() {
         final ExoPlayer exoPlayer = new ExoPlayer.Builder(this).build();
         final CustomPlayer customPlayer = new CustomPlayer(exoPlayer);
@@ -54,7 +63,7 @@ public class PlayerService extends Service {
         mCustomPlayerCallbacks = new CustomPlayerCallbacks();
         customPlayer.setCallbacks(mCustomPlayerCallbacks);
 
-        mServicePayloadHolder = new ServicePayloadHolder<>(customPlayer);
+        mServicePayloadHolder = new ServicePayloadHolder<>(this, customPlayer);
     }
 
 
@@ -131,6 +140,9 @@ public class PlayerService extends Service {
                                                             @DrawableRes int iconRes) {
         if (null == mNotificationsBuilder)
             mNotificationsBuilder = new NotificationCompat.Builder(this, CHANNEL_ID);
+
+        if (null != mContentIntent)
+            mNotificationsBuilder.setContentIntent(mContentIntent);
 
         return mNotificationsBuilder
                 .setSmallIcon(iconRes)
