@@ -39,6 +39,7 @@ dependencies {
 
     implementation 'com.github.aakumykov:exception_utils:0.4'
     implementation 'com.github.aakumykov:argument_utils:0.3'
+    implementation 'com.github.aakumykov:single_live_event_845:0.1'
 
     implementation 'com.google.android.exoplayer:exoplayer:2.18.2'
 }
