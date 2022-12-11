@@ -1,4 +1,4 @@
-package com.example.player_service_619;
+package com.github.aakumykov.player_service_619;
 
 import static org.junit.Assert.*;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.example.player_service_619", appContext.getPackageName());
+        assertEquals("com.github.aakumykov.player_service_619", appContext.getPackageName());
     }
 }

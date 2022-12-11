@@ -1,4 +1,4 @@
-package com.example.player_service_619;
+package com.github.aakumykov.player_service_619;
 
 import android.Manifest;
 import android.content.ComponentName;
@@ -14,11 +14,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.player_service.PlayerService;
-import com.example.player_service.PlayerState;
-import com.example.player_service.SoundItem;
-import com.example.player_service.SoundPlayer;
-import com.example.player_service_619.databinding.ActivityMainBinding;
+import com.github.aakumykov.player_service.PlayerService;
+import com.github.aakumykov.player_service.PlayerState;
+import com.github.aakumykov.player_service.SoundItem;
+import com.github.aakumykov.player_service.SoundPlayer;
+import com.github.aakumykov.player_service_619.databinding.ActivityMainBinding;
 import com.gitlab.aakumykov.exception_utils_module.ExceptionUtils;
 
 import java.io.File;
@@ -47,13 +47,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         setContentView(mBinding.getRoot());
 
         mBinding.pickFileButton.setOnClickListener(v ->
-                MainActivityPermissionsDispatcher.pickFileWithPermissionCheck(MainActivity.this));
+                com.github.aakumykov.player_service_619.MainActivityPermissionsDispatcher.pickFileWithPermissionCheck(MainActivity.this));
 
         mBinding.playDownloadsButton.setOnClickListener(v ->
-                MainActivityPermissionsDispatcher.playFilesFromDownloadsWithPermissionCheck(MainActivity.this));
+                com.github.aakumykov.player_service_619.MainActivityPermissionsDispatcher.playFilesFromDownloadsWithPermissionCheck(MainActivity.this));
 
         mBinding.playMusicButton.setOnClickListener(v ->
-            MainActivityPermissionsDispatcher.playFilesFromMusicWithPermissionCheck(MainActivity.this));
+            com.github.aakumykov.player_service_619.MainActivityPermissionsDispatcher.playFilesFromMusicWithPermissionCheck(MainActivity.this));
 
         mBinding.playPauseButton.setOnClickListener(v -> {
             if (null != mSoundPlayer) {
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+        com.github.aakumykov.player_service_619.MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
     @Override

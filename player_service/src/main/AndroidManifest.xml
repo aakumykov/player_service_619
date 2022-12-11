@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application>
-        <service android:name="com.example.player_service.PlayerService"
+        <service android:name="com.github.aakumykov.player_service.PlayerService"
             android:enabled="true"
             android:exported="false" />
     </application>
