@@ -1,4 +1,4 @@
-package com.example.player_service;
+package com.github.aakumykov.player_service;
 
 import static com.github.aakumykov.argument_utils.ArgumentUtils.checkNotNull;
 

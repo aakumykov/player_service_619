@@ -1,4 +1,4 @@
-package com.example.player_service_619;
+package com.github.aakumykov.player_service_619;
 
 import static org.junit.Assert.*;
 

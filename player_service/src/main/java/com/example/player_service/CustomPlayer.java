@@ -1,4 +1,4 @@
-package com.example.player_service;
+package com.github.aakumykov.player_service;
 
 import android.net.Uri;
 import android.os.Binder;

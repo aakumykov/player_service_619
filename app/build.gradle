@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.player_service_619'
+    namespace 'com.github.aakumykov.player_service_619'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.player_service_619"
+        applicationId "com.github.aakumykov.player_service_619"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -50,5 +50,5 @@ dependencies {
     implementation "com.github.permissions-dispatcher:permissionsdispatcher:4.9.2"
     annotationProcessor "com.github.permissions-dispatcher:permissionsdispatcher-processor:4.9.2"
 
-    implementation 'com.github.aakumykov:player_service_619:0.0.1'
+    implementation 'com.github.aakumykov:player_service_619:0.0.2'
 }
