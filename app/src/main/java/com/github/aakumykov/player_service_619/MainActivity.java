@@ -14,10 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.github.aakumykov.player_service.PlayerService;
-import com.github.aakumykov.player_service.PlayerState;
-import com.github.aakumykov.player_service.SoundItem;
-import com.github.aakumykov.player_service.SoundPlayer;
 import com.github.aakumykov.player_service_619.databinding.ActivityMainBinding;
 import com.gitlab.aakumykov.exception_utils_module.ExceptionUtils;
 
@@ -36,6 +32,7 @@ import permissions.dispatcher.RuntimePermissions;
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
 
     private static final int PICK_FILE_REQUEST_CODE = R.id.pick_file_request_code;
+    private ServicePayloadHolder<CustomPlayer> mServicePayloadHolder;
     @Nullable private SoundPlayer mSoundPlayer;
     private ActivityMainBinding mBinding;
 
@@ -47,13 +44,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         setContentView(mBinding.getRoot());
 
         mBinding.pickFileButton.setOnClickListener(v ->
-                com.github.aakumykov.player_service_619.MainActivityPermissionsDispatcher.pickFileWithPermissionCheck(MainActivity.this));
+                MainActivityPermissionsDispatcher.pickFileWithPermissionCheck(MainActivity.this));
 
         mBinding.playDownloadsButton.setOnClickListener(v ->
-                com.github.aakumykov.player_service_619.MainActivityPermissionsDispatcher.playFilesFromDownloadsWithPermissionCheck(MainActivity.this));
+                MainActivityPermissionsDispatcher.playFilesFromDownloadsWithPermissionCheck(MainActivity.this));
 
         mBinding.playMusicButton.setOnClickListener(v ->
-            com.github.aakumykov.player_service_619.MainActivityPermissionsDispatcher.playFilesFromMusicWithPermissionCheck(MainActivity.this));
+                MainActivityPermissionsDispatcher.playFilesFromMusicWithPermissionCheck(MainActivity.this));
 
         mBinding.playPauseButton.setOnClickListener(v -> {
             if (null != mSoundPlayer) {
@@ -82,6 +79,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 mSoundPlayer.skipToNext();
         });
 
+        mBinding.errorButton.setOnClickListener(v -> {
+            if (null != mSoundPlayer)
+                mSoundPlayer.produceError(new RuntimeException(getString(R.string.testing_error)));
+        });
+
         startService(PlayerService.getIntent(this));
     }
 
@@ -108,16 +110,22 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        com.github.aakumykov.player_service_619.MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        mSoundPlayer = (SoundPlayer) service;
+
+        mServicePayloadHolder = (ServicePayloadHolder) service;
+
+        mSoundPlayer = mServicePayloadHolder.getPayload();
 
         if (null != mSoundPlayer)
             mSoundPlayer.getPlayerStateLiveData().observe(this, this::onPlayerStateChanged);
+
+        mServicePayloadHolder.getPlayerService().setContentIntent(createContentIntent());
     }
+
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
@@ -276,6 +284,12 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     private void hideTrackTitle() {
         mBinding.infoView.setText("");
+    }
+
+
+    private Intent createContentIntent() {
+        return new Intent(this, MainActivity.class);
+
     }
 
 }
