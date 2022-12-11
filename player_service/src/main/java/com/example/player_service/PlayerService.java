@@ -1,5 +1,6 @@
 package com.github.aakumykov.player_service;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -19,9 +20,11 @@ public class PlayerService extends Service {
 
     private static final String CHANNEL_ID = "Player_service_notification_channel";
     private static final int NOTIFICATION_ID = R.id.player_notification;
-    private CustomPlayer mCustomPlayer;
+    private static final int OPEN_ACTIVITY_REQUEST_CODE = R.id.open_main_activity_request_code;
+    private ServicePayloadHolder<CustomPlayer> mServicePayloadHolder;
     private SoundPlayerCallbacks mCustomPlayerCallbacks;
     @Nullable private NotificationCompat.Builder mNotificationsBuilder;
+    @Nullable private PendingIntent mContentIntent;
 
     public static Intent getIntent(Context context) {
         return new Intent(context, PlayerService.class);
@@ -29,30 +32,38 @@ public class PlayerService extends Service {
 
     @Nullable @Override
     public IBinder onBind(Intent intent) {
-        return mCustomPlayer;
+        return mServicePayloadHolder;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        preparePlayer();
+        prepareServicePayload();
         prepareNotificationChannel();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mCustomPlayer.unsetCallbacks(mCustomPlayerCallbacks);
-        mCustomPlayer.release();
+        mServicePayloadHolder.getPayload().unsetCallbacks(mCustomPlayerCallbacks);
+        mServicePayloadHolder.getPayload().release();
     }
 
 
-    private void preparePlayer() {
+    public void setContentIntent(@NonNull Intent contentIntent) {
+        mContentIntent = PendingIntent.getActivity(this, OPEN_ACTIVITY_REQUEST_CODE,
+                contentIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+
+    private void prepareServicePayload() {
         final ExoPlayer exoPlayer = new ExoPlayer.Builder(this).build();
-        mCustomPlayer = new CustomPlayer(exoPlayer);
+        final CustomPlayer customPlayer = new CustomPlayer(exoPlayer);
 
         mCustomPlayerCallbacks = new CustomPlayerCallbacks();
-        mCustomPlayer.setCallbacks(mCustomPlayerCallbacks);
+        customPlayer.setCallbacks(mCustomPlayerCallbacks);
+
+        mServicePayloadHolder = new ServicePayloadHolder<>(this, customPlayer);
     }
 
 
@@ -129,6 +140,9 @@ public class PlayerService extends Service {
                                                             @DrawableRes int iconRes) {
         if (null == mNotificationsBuilder)
             mNotificationsBuilder = new NotificationCompat.Builder(this, CHANNEL_ID);
+
+        if (null != mContentIntent)
+            mNotificationsBuilder.setContentIntent(mContentIntent);
 
         return mNotificationsBuilder
                 .setSmallIcon(iconRes)
