@@ -19,7 +19,7 @@ public class PlayerService extends Service {
 
     private static final String CHANNEL_ID = "Player_service_notification_channel";
     private static final int NOTIFICATION_ID = R.id.player_notification;
-    private CustomPlayer mCustomPlayer;
+    private ServicePayloadHolder<CustomPlayer> mServicePayloadHolder;
     private SoundPlayerCallbacks mCustomPlayerCallbacks;
     @Nullable private NotificationCompat.Builder mNotificationsBuilder;
 
@@ -29,30 +29,32 @@ public class PlayerService extends Service {
 
     @Nullable @Override
     public IBinder onBind(Intent intent) {
-        return mCustomPlayer;
+        return mServicePayloadHolder;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        preparePlayer();
+        prepareServicePayload();
         prepareNotificationChannel();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mCustomPlayer.unsetCallbacks(mCustomPlayerCallbacks);
-        mCustomPlayer.release();
+        mServicePayloadHolder.getPayload().unsetCallbacks(mCustomPlayerCallbacks);
+        mServicePayloadHolder.getPayload().release();
     }
 
 
-    private void preparePlayer() {
+    private void prepareServicePayload() {
         final ExoPlayer exoPlayer = new ExoPlayer.Builder(this).build();
-        mCustomPlayer = new CustomPlayer(exoPlayer);
+        final CustomPlayer customPlayer = new CustomPlayer(exoPlayer);
 
         mCustomPlayerCallbacks = new CustomPlayerCallbacks();
-        mCustomPlayer.setCallbacks(mCustomPlayerCallbacks);
+        customPlayer.setCallbacks(mCustomPlayerCallbacks);
+
+        mServicePayloadHolder = new ServicePayloadHolder<>(customPlayer);
     }
 
 
