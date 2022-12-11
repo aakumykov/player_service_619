@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.aakumykov.player_service.CustomPlayer;
-import com.github.aakumykov.player_service.NotificationCommand;
 import com.github.aakumykov.player_service.PlayerService;
 import com.github.aakumykov.player_service.PlayerState;
 import com.github.aakumykov.player_service.ServicePayloadHolder;
@@ -125,21 +124,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         mServicePayloadHolder = (ServicePayloadHolder) service;
 
-        mServicePayloadHolder.getNotificationCommands().observe(this, this::onNewNotificationCommand);
-
         mSoundPlayer = mServicePayloadHolder.getPayload();
 
         if (null != mSoundPlayer)
             mSoundPlayer.getPlayerStateLiveData().observe(this, this::onPlayerStateChanged);
+
+        mServicePayloadHolder.getPlayerService().setContentIntent(createContentIntent());
     }
 
-    private void onNewNotificationCommand(NotificationCommand notificationCommand) {
-        switch (notificationCommand) {
-            case OPEN_APP:
-                break;
-            default:
-        }
-    }
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
@@ -298,6 +290,12 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     private void hideTrackTitle() {
         mBinding.infoView.setText("");
+    }
+
+
+    private Intent createContentIntent() {
+        return new Intent(this, MainActivity.class);
+
     }
 
 }
