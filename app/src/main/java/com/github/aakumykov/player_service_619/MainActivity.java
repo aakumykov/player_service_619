@@ -14,8 +14,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.github.aakumykov.player_service.CustomPlayer;
+import com.github.aakumykov.player_service.NotificationCommand;
 import com.github.aakumykov.player_service.PlayerService;
 import com.github.aakumykov.player_service.PlayerState;
+import com.github.aakumykov.player_service.ServicePayloadHolder;
 import com.github.aakumykov.player_service.SoundItem;
 import com.github.aakumykov.player_service.SoundPlayer;
 import com.github.aakumykov.player_service_619.databinding.ActivityMainBinding;
@@ -36,6 +39,7 @@ import permissions.dispatcher.RuntimePermissions;
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
 
     private static final int PICK_FILE_REQUEST_CODE = R.id.pick_file_request_code;
+    private ServicePayloadHolder<CustomPlayer> mServicePayloadHolder;
     @Nullable private SoundPlayer mSoundPlayer;
     private ActivityMainBinding mBinding;
 
@@ -118,10 +122,23 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        mSoundPlayer = (SoundPlayer) service;
+
+        mServicePayloadHolder = (ServicePayloadHolder) service;
+
+        mServicePayloadHolder.getNotificationCommands().observe(this, this::onNewNotificationCommand);
+
+        mSoundPlayer = mServicePayloadHolder.getPayload();
 
         if (null != mSoundPlayer)
             mSoundPlayer.getPlayerStateLiveData().observe(this, this::onPlayerStateChanged);
+    }
+
+    private void onNewNotificationCommand(NotificationCommand notificationCommand) {
+        switch (notificationCommand) {
+            case OPEN_APP:
+                break;
+            default:
+        }
     }
 
     @Override
