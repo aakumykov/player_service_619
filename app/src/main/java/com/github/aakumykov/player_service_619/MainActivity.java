@@ -47,13 +47,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         setContentView(mBinding.getRoot());
 
         mBinding.pickFileButton.setOnClickListener(v ->
-                com.github.aakumykov.player_service_619.MainActivityPermissionsDispatcher.pickFileWithPermissionCheck(MainActivity.this));
+                MainActivityPermissionsDispatcher.pickFileWithPermissionCheck(MainActivity.this));
 
         mBinding.playDownloadsButton.setOnClickListener(v ->
-                com.github.aakumykov.player_service_619.MainActivityPermissionsDispatcher.playFilesFromDownloadsWithPermissionCheck(MainActivity.this));
+                MainActivityPermissionsDispatcher.playFilesFromDownloadsWithPermissionCheck(MainActivity.this));
 
         mBinding.playMusicButton.setOnClickListener(v ->
-            com.github.aakumykov.player_service_619.MainActivityPermissionsDispatcher.playFilesFromMusicWithPermissionCheck(MainActivity.this));
+                MainActivityPermissionsDispatcher.playFilesFromMusicWithPermissionCheck(MainActivity.this));
 
         mBinding.playPauseButton.setOnClickListener(v -> {
             if (null != mSoundPlayer) {
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        com.github.aakumykov.player_service_619.MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
     @Override
