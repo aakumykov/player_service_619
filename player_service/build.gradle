@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace 'com.example.player_service'
+    namespace 'com.github.aakumykov.player_service'
     compileSdk 33
 
     defaultConfig {

@@ -1,4 +1,4 @@
-package com.example.player_service;
+package com.github.aakumykov.player_service;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
