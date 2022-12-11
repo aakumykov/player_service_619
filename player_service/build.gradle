@@ -54,7 +54,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.aakumykov'
                 artifactId = 'player_service_619'
-                version = '0.0.3'
+                version = '0.0.4'
             }
         }
     }
