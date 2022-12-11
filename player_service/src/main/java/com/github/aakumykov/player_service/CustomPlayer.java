@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class CustomPlayer extends Binder implements SoundPlayer {
+public class CustomPlayer extends Binder implements com.github.aakumykov.player_service.SoundPlayer {
 
     private final ExoPlayer mExoPlayer;
     private final MyExoPlayerListener mListener;
-    @Nullable private SoundPlayerCallbacks mCallbacks;
-    @Nullable private MutableLiveData<PlayerState> mPlayerStateMutableLiveData;
-    private final SortedMap<String, SoundItem> mSoundItemMap = new TreeMap<>();
+    @Nullable private com.github.aakumykov.player_service.SoundPlayerCallbacks mCallbacks;
+    @Nullable private MutableLiveData<com.github.aakumykov.player_service.PlayerState> mPlayerStateMutableLiveData;
+    private final SortedMap<String, com.github.aakumykov.player_service.SoundItem> mSoundItemMap = new TreeMap<>();
 
     public CustomPlayer(ExoPlayer exoPlayer) {
         mExoPlayer = exoPlayer;
@@ -37,16 +37,16 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     }
 
     @Override
-    public void play(@NonNull SoundItem soundItem) {
+    public void play(@NonNull com.github.aakumykov.player_service.SoundItem soundItem) {
         play(Collections.singletonList(soundItem));
     }
 
     @Override
-    public void play(List<SoundItem> soundItemList) {
+    public void play(List<com.github.aakumykov.player_service.SoundItem> soundItemList) {
         mExoPlayer.stop();
         mExoPlayer.clearMediaItems();
         mSoundItemMap.clear();
-        for (SoundItem soundItem : soundItemList)
+        for (com.github.aakumykov.player_service.SoundItem soundItem : soundItemList)
             mExoPlayer.addMediaItem(soundItem2mediaItem(soundItem));
         mExoPlayer.prepare();
     }
@@ -69,7 +69,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     @Override
     public void stop() {
         mExoPlayer.stop();
-        publishPlayerState(new PlayerState.Stopped());
+        publishPlayerState(new com.github.aakumykov.player_service.PlayerState.Stopped());
     }
 
     @Override
@@ -91,25 +91,25 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
     @Override
     public boolean isStopped() {
-        PlayerState playerState = null;
+        com.github.aakumykov.player_service.PlayerState playerState = null;
         if (null != mPlayerStateMutableLiveData)
             playerState = mPlayerStateMutableLiveData.getValue();
-        return playerState instanceof PlayerState.Stopped;
+        return playerState instanceof com.github.aakumykov.player_service.PlayerState.Stopped;
     }
 
 
     @Override
-    public void setCallbacks(SoundPlayerCallbacks callbacks) {
+    public void setCallbacks(com.github.aakumykov.player_service.SoundPlayerCallbacks callbacks) {
         mCallbacks = callbacks;
     }
 
     @Override
-    public void unsetCallbacks(SoundPlayerCallbacks customPlayerCallbacks) {
+    public void unsetCallbacks(com.github.aakumykov.player_service.SoundPlayerCallbacks customPlayerCallbacks) {
         mCallbacks = null;
     }
 
     @Override
-    public LiveData<PlayerState> getPlayerStateLiveData() {
+    public LiveData<com.github.aakumykov.player_service.PlayerState> getPlayerStateLiveData() {
         if (null == mPlayerStateMutableLiveData)
             mPlayerStateMutableLiveData = new MutableLiveData<>();
 
@@ -119,11 +119,11 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     @Override
     public void produceError(Throwable throwable) {
         mExoPlayer.stop();
-        publishPlayerState(new PlayerState.Error(currentSoundItem(), throwable));
+        publishPlayerState(new com.github.aakumykov.player_service.PlayerState.Error(currentSoundItem(), throwable));
     }
 
 
-    private void publishPlayerState(@NonNull PlayerState playerState) {
+    private void publishPlayerState(@NonNull com.github.aakumykov.player_service.PlayerState playerState) {
 
         if (null != mCallbacks)
             mCallbacks.onPlayerStateChanged(playerState);
@@ -134,7 +134,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
             mPlayerStateMutableLiveData.postValue(playerState);
     }
 
-    private void playerState2specificCallback(@NonNull PlayerState playerState) {
+    private void playerState2specificCallback(@NonNull com.github.aakumykov.player_service.PlayerState playerState) {
 
         if (null == mCallbacks)
             return;
@@ -150,15 +150,15 @@ public class CustomPlayer extends Binder implements SoundPlayer {
                 mCallbacks.onStop();
                 break;
             case ERROR:
-                final PlayerState.Error errorPlayerState = (PlayerState.Error) playerState;
+                final com.github.aakumykov.player_service.PlayerState.Error errorPlayerState = (com.github.aakumykov.player_service.PlayerState.Error) playerState;
                 mCallbacks.onError(errorPlayerState.getSoundItem(), errorPlayerState.getError());
                 break;
             default:
-                EnumUtils.throwUnknownValue(playerState.getMode());
+                com.github.aakumykov.player_service.EnumUtils.throwUnknownValue(playerState.getMode());
         }
     }
 
-    private MediaItem soundItem2mediaItem(SoundItem soundItem) {
+    private MediaItem soundItem2mediaItem(com.github.aakumykov.player_service.SoundItem soundItem) {
 
         mSoundItemMap.put(soundItem.getId(), soundItem);
 
@@ -169,7 +169,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
                 .build();
     }
 
-    private MediaMetadata soundItem2mediaMetadata(SoundItem soundItem) {
+    private MediaMetadata soundItem2mediaMetadata(com.github.aakumykov.player_service.SoundItem soundItem) {
         return new MediaMetadata.Builder()
                 .setTitle(soundItem.getTitle())
                 .build();
@@ -188,7 +188,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
         public void onPlaybackStateChanged(int playbackState) {
             switch (playbackState) {
                 case Player.STATE_ENDED:
-                    publishPlayerState(new PlayerState.Stopped());
+                    publishPlayerState(new com.github.aakumykov.player_service.PlayerState.Stopped());
                     break;
                 default:
                     Player.Listener.super.onPlaybackStateChanged(playbackState);
@@ -198,20 +198,20 @@ public class CustomPlayer extends Binder implements SoundPlayer {
         @Override
         public void onIsPlayingChanged(boolean isPlaying) {
             if (isPlaying)
-                publishPlayerState(new PlayerState.Playing(currentSoundItem()));
+                publishPlayerState(new com.github.aakumykov.player_service.PlayerState.Playing(currentSoundItem()));
             else
-                publishPlayerState(new PlayerState.Paused(currentSoundItem()));
+                publishPlayerState(new com.github.aakumykov.player_service.PlayerState.Paused(currentSoundItem()));
         }
 
         @Override
         public void onPlayerErrorChanged(@Nullable PlaybackException error) {
             Exception e = (null == error) ? new RuntimeException("null") : error;
-            publishPlayerState(new PlayerState.Error(currentSoundItem(), e));
+            publishPlayerState(new com.github.aakumykov.player_service.PlayerState.Error(currentSoundItem(), e));
         }
     }
 
     @Nullable
-    private SoundItem currentSoundItem() {
+    private com.github.aakumykov.player_service.SoundItem currentSoundItem() {
 
         final MediaItem mediaItem = mExoPlayer.getCurrentMediaItem();
 
