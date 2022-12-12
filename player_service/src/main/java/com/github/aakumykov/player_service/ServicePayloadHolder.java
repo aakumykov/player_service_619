@@ -2,22 +2,22 @@ package com.github.aakumykov.player_service;
 
 import android.os.Binder;
 
-public class ServicePayloadHolder<T> extends Binder {
+public class ServicePayloadHolder extends Binder {
 
-    private final T mPayload;
+    private final SoundPlayer mSoundPlayer;
     private final PlayerService mPlayerService;
 
-    public ServicePayloadHolder(PlayerService playerService, T payload) {
+    public ServicePayloadHolder(PlayerService playerService, SoundPlayer soundPlayer) {
         mPlayerService = playerService;
-        mPayload = payload;
+        mSoundPlayer = soundPlayer;
     }
 
     public PlayerService getPlayerService() {
         return mPlayerService;
     }
 
-    public T getPayload() {
-        return mPayload;
+    public SoundPlayer getSoundPlayer() {
+        return mSoundPlayer;
     }
 
 }

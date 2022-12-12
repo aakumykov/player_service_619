@@ -19,10 +19,10 @@ public interface SoundPlayer {
     boolean isPlaying();
     boolean isStopped();
 
+    void release();
+
     default void setCallbacks(SoundPlayerCallbacks callbacks) {}
     default void unsetCallbacks(SoundPlayerCallbacks customPlayerCallbacks) {}
 
     default LiveData<PlayerState> getPlayerStateLiveData() { return new MutableLiveData<>(); }
-
-    void produceError(Throwable throwable);
 }
