@@ -14,6 +14,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.github.aakumykov.player_service.CustomPlayer;
+import com.github.aakumykov.player_service.PlayerService;
+import com.github.aakumykov.player_service.PlayerState;
+import com.github.aakumykov.player_service.ServicePayloadHolder;
+import com.github.aakumykov.player_service.SoundItem;
+import com.github.aakumykov.player_service.SoundPlayer;
 import com.github.aakumykov.player_service_619.databinding.ActivityMainBinding;
 import com.gitlab.aakumykov.exception_utils_module.ExceptionUtils;
 
@@ -79,11 +85,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 mSoundPlayer.skipToNext();
         });
 
-        mBinding.errorButton.setOnClickListener(v -> {
-            if (null != mSoundPlayer)
-                mSoundPlayer.produceError(new RuntimeException(getString(R.string.testing_error)));
-        });
-
         startService(PlayerService.getIntent(this));
     }
 
@@ -126,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         mServicePayloadHolder.getPlayerService().setContentIntent(createContentIntent());
     }
 
-
     @Override
     public void onServiceDisconnected(ComponentName name) {
         if (null != mSoundPlayer) {
@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             mSoundPlayer = null;
         }
     }
+
 
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     void pickFile() {
