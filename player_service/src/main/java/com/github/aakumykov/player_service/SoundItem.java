@@ -20,6 +20,10 @@ public class SoundItem {
         this(Uri.fromFile(file));
     }
 
+    public SoundItem(@NonNull File file) throws NullPointerException {
+        this(Uri.fromFile(file));
+    }
+
     public SoundItem(@NonNull Uri fileUri) throws NullPointerException
     {
         this(UUID.randomUUID().toString(), uri2fileName(fileUri), fileUri);
@@ -33,6 +37,7 @@ public class SoundItem {
         mTitle = title;
         mFileUri = fileUri;
     }
+
 
     @NonNull
     public String getId() {
