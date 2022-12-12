@@ -30,6 +30,9 @@ public class PlayerService extends Service {
         return new Intent(context, PlayerService.class);
     }
 
+    public static SoundPlayer getSoundPlayer(IBinder binder) {
+        return ((ServicePayloadHolder) binder).getSoundPlayer();
+    }
 
 
     @Nullable @Override
