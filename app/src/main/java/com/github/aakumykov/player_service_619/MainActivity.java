@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.github.aakumykov.player_service.CustomPlayer;
 import com.github.aakumykov.player_service.PlayerService;
 import com.github.aakumykov.player_service.PlayerState;
 import com.github.aakumykov.player_service.ServicePayloadHolder;
@@ -38,7 +37,7 @@ import permissions.dispatcher.RuntimePermissions;
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
 
     private static final int PICK_FILE_REQUEST_CODE = R.id.pick_file_request_code;
-    private ServicePayloadHolder<CustomPlayer> mServicePayloadHolder;
+    private ServicePayloadHolder mServicePayloadHolder;
     @Nullable private SoundPlayer mSoundPlayer;
     private ActivityMainBinding mBinding;
 
@@ -119,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         mServicePayloadHolder = (ServicePayloadHolder) service;
 
-        mSoundPlayer = mServicePayloadHolder.getPayload();
+        mSoundPlayer = mServicePayloadHolder.getSoundPlayer();
 
         if (null != mSoundPlayer)
             mSoundPlayer.getPlayerStateLiveData().observe(this, this::onPlayerStateChanged);
