@@ -3,6 +3,11 @@ plugins {
     id 'maven-publish'
 }
 
+project.ext {
+    artifactId = 'player_service_619'
+    groupId = 'com.github.aakumykov'
+}
+
 android {
     namespace 'com.github.aakumykov.player_service'
     compileSdk 33
@@ -10,6 +15,8 @@ android {
     defaultConfig {
         minSdk 21
         targetSdk 33
+        versionCode 5
+        versionName "0.0.5"
 
 //        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -19,6 +26,13 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+//            withJavadocJar()
         }
     }
 
@@ -47,15 +61,4 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                groupId = 'com.github.aakumykov'
-                artifactId = 'player_service_619'
-                version = '0.0.4'
-            }
-        }
-    }
-}
+apply from: '../../publish_local.gradle'
