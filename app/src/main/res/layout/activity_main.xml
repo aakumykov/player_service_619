@@ -98,13 +98,4 @@
             app:srcCompat="@drawable/ic_baseline_skip_next_24" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/errorButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:backgroundTint="#E91E63"
-        android:text="Показать ошибку"
-        android:textAllCaps="false" />
-
 </LinearLayout>
