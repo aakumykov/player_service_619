@@ -21,7 +21,7 @@ public class PlayerService extends Service {
     private static final String CHANNEL_ID = "Player_service_notification_channel";
     private static final int NOTIFICATION_ID = R.id.player_notification;
     private static final int OPEN_ACTIVITY_REQUEST_CODE = R.id.open_main_activity_request_code;
-    private ServicePayloadHolder<CustomPlayer> mServicePayloadHolder;
+    private ServicePayloadHolder mServicePayloadHolder;
     private SoundPlayerCallbacks mCustomPlayerCallbacks;
     @Nullable private NotificationCompat.Builder mNotificationsBuilder;
     @Nullable private PendingIntent mContentIntent;
@@ -29,6 +29,8 @@ public class PlayerService extends Service {
     public static Intent getIntent(Context context) {
         return new Intent(context, PlayerService.class);
     }
+
+
 
     @Nullable @Override
     public IBinder onBind(Intent intent) {
@@ -45,8 +47,8 @@ public class PlayerService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mServicePayloadHolder.getPayload().unsetCallbacks(mCustomPlayerCallbacks);
-        mServicePayloadHolder.getPayload().release();
+        mServicePayloadHolder.getSoundPlayer().unsetCallbacks(mCustomPlayerCallbacks);
+        mServicePayloadHolder.getSoundPlayer().release();
     }
 
 
@@ -63,7 +65,7 @@ public class PlayerService extends Service {
         mCustomPlayerCallbacks = new CustomPlayerCallbacks();
         customPlayer.setCallbacks(mCustomPlayerCallbacks);
 
-        mServicePayloadHolder = new ServicePayloadHolder<>(this, customPlayer);
+        mServicePayloadHolder = new ServicePayloadHolder(this, customPlayer);
     }
 
 
