@@ -34,6 +34,12 @@ public class PlayerService extends Service {
         return ((ServicePayloadHolder) binder).getSoundPlayer();
     }
 
+    public static void setContentIntent(IBinder binder, Intent intent) {
+        PlayerService playerService = playerServiceFromBinder(binder);
+        if (null != playerService)
+            playerServiceFromBinder(binder).setContentIntent(intent);
+    }
+
 
     @Nullable @Override
     public IBinder onBind(Intent intent) {
@@ -58,6 +64,11 @@ public class PlayerService extends Service {
     public void setContentIntent(@NonNull Intent contentIntent) {
         mContentIntent = PendingIntent.getActivity(this, OPEN_ACTIVITY_REQUEST_CODE,
                 contentIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+
+    private static PlayerService playerServiceFromBinder(IBinder binder) {
+        return ((ServicePayloadHolder) binder).getPlayerService();
     }
 
 
