@@ -1,21 +1,37 @@
 package com.github.aakumykov.player_service;
 
-import static com.github.aakumykov.argument_utils.ArgumentUtils.checkNotNull;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
 import java.io.File;
+import java.util.UUID;
 
 public class SoundItem {
 
     @NonNull private final String mId;
-    @NonNull private final File mFile;
     @NonNull private final String mTitle;
+    @NonNull private final Uri mFileUri;
 
-    public SoundItem(@NonNull String id, @NonNull String title, @NonNull File file) throws NullPointerException {
-        mId = checkNotNull(id);
-        mTitle = checkNotNull(title);
-        mFile = checkNotNull(file);
+    public SoundItem(@NonNull String id,
+                     @NonNull String title,
+                     @NonNull File file) throws NullPointerException
+    {
+        this(Uri.fromFile(file));
+    }
+
+    public SoundItem(@NonNull Uri fileUri) throws NullPointerException
+    {
+        this(UUID.randomUUID().toString(), uri2fileName(fileUri), fileUri);
+    }
+
+    private SoundItem(@NonNull String id,
+                      @NonNull String title,
+                      @NonNull Uri fileUri) throws NullPointerException
+    {
+        mId = id;
+        mTitle = title;
+        mFileUri = fileUri;
     }
 
     @NonNull
@@ -24,8 +40,8 @@ public class SoundItem {
     }
 
     @NonNull
-    public File getFile() {
-        return mFile;
+    public Uri getFileUri() {
+        return mFileUri;
     }
 
     @NonNull
@@ -33,12 +49,21 @@ public class SoundItem {
         return mTitle;
     }
 
-    @Override
+    @NonNull @Override
     public String toString() {
         return "SoundItem{" +
                 "mId='" + mId + '\'' +
-                ", mFile=" + mFile +
                 ", mTitle='" + mTitle + '\'' +
+                ", mFileUri=" + mFileUri +
                 '}';
+    }
+
+
+    private static String uri2fileName(Uri fileUri) {
+        final String path = fileUri.getPath().trim();
+        if ("".equals(path))
+            return "";
+        final String[] parts = path.split("/");
+        return parts[parts.length-1];
     }
 }

@@ -1,6 +1,5 @@
 package com.github.aakumykov.player_service;
 
-import android.net.Uri;
 import android.os.Binder;
 
 import androidx.annotation.NonNull;
@@ -46,8 +45,10 @@ public class CustomPlayer extends Binder implements SoundPlayer {
         mExoPlayer.stop();
         mExoPlayer.clearMediaItems();
         mSoundItemMap.clear();
+
         for (SoundItem soundItem : soundItemList)
             mExoPlayer.addMediaItem(soundItem2mediaItem(soundItem));
+
         mExoPlayer.prepare();
     }
 
@@ -99,7 +100,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
 
     @Override
-    public void setCallbacks(SoundPlayerCallbacks callbacks) {
+    public void setCallbacks(@NonNull SoundPlayerCallbacks callbacks) {
         mCallbacks = callbacks;
     }
 
@@ -114,6 +115,12 @@ public class CustomPlayer extends Binder implements SoundPlayer {
             mPlayerStateMutableLiveData = new MutableLiveData<>();
 
         return mPlayerStateMutableLiveData;
+    }
+
+    @Override
+    public void produceError(Throwable throwable) {
+        mExoPlayer.stop();
+        publishPlayerState(new PlayerState.Error(currentSoundItem(), throwable));
     }
 
 
@@ -158,7 +165,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
         return new MediaItem.Builder()
                 .setMediaId(soundItem.getId())
-                .setUri(Uri.fromFile(soundItem.getFile()))
+                .setUri(soundItem.getFileUri())
                 .setMediaMetadata(soundItem2mediaMetadata(soundItem))
                 .build();
     }
@@ -179,13 +186,11 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     private class MyExoPlayerListener implements Player.Listener {
 
         @Override
-        public void onPlaybackStateChanged(int playbackState) {
-            switch (playbackState) {
-                case Player.STATE_ENDED:
-                    publishPlayerState(new PlayerState.Stopped());
-                    break;
-                default:
-                    Player.Listener.super.onPlaybackStateChanged(playbackState);
+        public void onPlaybackStateChanged(final int playbackState) {
+            if (Player.STATE_ENDED == playbackState) {
+                publishPlayerState(new PlayerState.Stopped());
+            } else {
+                Player.Listener.super.onPlaybackStateChanged(playbackState);
             }
         }
 
