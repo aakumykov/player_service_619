@@ -177,10 +177,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             return;
         }
 
-        if (null != mSoundPlayer) {
-            String path = data.getPath();
-            mSoundPlayer.play(new SoundItem(path, path, new File(path)));
-        }
+        if (null != mSoundPlayer)
+            mSoundPlayer.play(new SoundItem(data));
     }
 
 
