@@ -15,8 +15,8 @@ android {
     defaultConfig {
         minSdk 21
         targetSdk 33
-        versionCode 7
-        versionName "0.0.7"
+        versionCode 8
+        versionName "0.0.8"
 
 //        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -61,7 +61,16 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
 }
 
-/*
-if (file('../../publish_local.gradle').exists()) {
-    apply from: '../../publish_local.gradle'
-}*/
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                from components.release
+                groupId = project.groupId
+                artifactId = project.artifactId
+                version = android.defaultConfig.versionName
+            }
+        }
+    }
+}
