@@ -61,6 +61,7 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
 }
 
+/*
 if (file('../../publish_local.gradle').exists()) {
     apply from: '../../publish_local.gradle'
-}
+}*/
