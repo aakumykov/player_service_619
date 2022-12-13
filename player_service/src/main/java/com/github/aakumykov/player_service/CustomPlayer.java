@@ -112,7 +112,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     @Override
     public LiveData<PlayerState> getPlayerStateLiveData() {
         if (null == mPlayerStateMutableLiveData)
-            mPlayerStateMutableLiveData = new MutableLiveData<>();
+            mPlayerStateMutableLiveData = new MutableLiveData<>(new PlayerState.Stopped());
 
         return mPlayerStateMutableLiveData;
     }
