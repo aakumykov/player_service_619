@@ -22,6 +22,7 @@ import java.util.TreeMap;
 public class CustomPlayer extends Binder implements SoundPlayer {
 
     private static final String TAG = CustomPlayer.class.getSimpleName();
+    private static final PlayerState DEFAULT_PLAYER_STATE = new PlayerState.Idle();
     private final ExoPlayer mExoPlayer;
     private final MyExoPlayerListener mListener;
     @Nullable private SoundPlayerCallbacks mCallbacks;
@@ -113,7 +114,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     @Override
     public LiveData<PlayerState> getPlayerStateLiveData() {
         if (null == mPlayerStateMutableLiveData)
-            mPlayerStateMutableLiveData = new MutableLiveData<>(new PlayerState.Stopped());
+            mPlayerStateMutableLiveData = new MutableLiveData<>(DEFAULT_PLAYER_STATE);
 
         return mPlayerStateMutableLiveData;
     }
@@ -135,7 +136,12 @@ public class CustomPlayer extends Binder implements SoundPlayer {
         if (null == mCallbacks)
             return;
 
-        switch (playerState.getMode()) {
+        final PlayerState.Mode mode = playerState.getMode();
+
+        switch (mode) {
+            case IDLE:
+                mCallbacks.onIdle();
+                break;
             case WAITING:
                 mCallbacks.onWait();
                 break;
@@ -153,7 +159,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
                 mCallbacks.onError(errorPlayerState.getSoundItem(), errorPlayerState.getError());
                 break;
             default:
-                EnumUtils.throwUnknownValue(playerState.getMode());
+                EnumUtils.throwUnknownValue(mode);
         }
     }
 
