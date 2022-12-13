@@ -30,6 +30,11 @@ public abstract class PlayerState {
         return null;
     }
 
+    public static class Waiting extends PlayerState {
+        protected Waiting() {
+            super(Mode.WAITING, null);
+        }
+    }
 
     public static class Playing extends PlayerState {
         protected Playing(@Nullable SoundItem soundItem) {
@@ -65,6 +70,7 @@ public abstract class PlayerState {
 
 
     public enum Mode {
+        WAITING,
         STOPPED,
         PLAYING,
         PAUSED,

@@ -97,6 +97,11 @@ public class PlayerService extends Service {
     private class CustomPlayerCallbacks implements SoundPlayerCallbacks {
 
         @Override
+        public void onWait() {
+            showWaitingNotification();
+        }
+
+        @Override
         public void onPlay(@Nullable SoundItem soundItem) {
             showPlayingNotification(titleFromSoundItem(soundItem));
         }
@@ -116,6 +121,14 @@ public class PlayerService extends Service {
             hidePersistentNotification();
             showErrorNotification(throwable);
         }
+    }
+
+    private void showWaitingNotification() {
+        showPersistentNotification(
+                getString(R.string.sound_track_waiting_title),
+                getString(R.string.sound_track_waiting_message),
+                R.drawable.ic_waiting
+        );
     }
 
     private void showPlayingNotification(String trackTitle) {

@@ -5,4 +5,6 @@
     <string name="sound_track_paused">Приостановлено</string>
     <string name="sound_track_playing">Воспроизводится</string>
     <string name="playing_error">Ошибка воспроизведения</string>
+    <string name="sound_track_waiting_title">Подготовка воспроизведения</string>
+    <string name="sound_track_waiting_message">...</string>
 </resources>
