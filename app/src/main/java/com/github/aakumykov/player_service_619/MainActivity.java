@@ -221,7 +221,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
 
     private void onPlayerStateChanged(PlayerState playerState) {
-        switch (playerState.getMode()) {
+
+        final PlayerState.Mode mode = playerState.getMode();
+
+        switch (mode) {
+            case IDLE:
+                onPlayerIdle();
+                break;
             case WAITING:
                 onPlayerWaiting();
                 break;
@@ -238,8 +244,12 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 onPlayerError((PlayerState.Error) playerState);
                 break;
             default:
-                throw new IllegalArgumentException("Неизвестное значение: "+playerState.getMode());
+                throw new IllegalArgumentException("Неизвестное значение: "+mode);
         }
+    }
+
+    private void onPlayerIdle() {
+
     }
 
     private void onPlayerWaiting() {
