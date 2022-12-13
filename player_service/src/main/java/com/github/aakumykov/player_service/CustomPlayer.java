@@ -21,6 +21,7 @@ import java.util.TreeMap;
 
 public class CustomPlayer extends Binder implements SoundPlayer {
 
+    private static final String TAG = CustomPlayer.class.getSimpleName();
     private final ExoPlayer mExoPlayer;
     private final MyExoPlayerListener mListener;
     @Nullable private SoundPlayerCallbacks mCallbacks;
@@ -70,7 +71,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     @Override
     public void stop() {
         mExoPlayer.stop();
-        publishPlayerState(new PlayerState.Stopped());
+//        publishPlayerState(new PlayerState.Stopped());
     }
 
     @Override
@@ -135,6 +136,9 @@ public class CustomPlayer extends Binder implements SoundPlayer {
             return;
 
         switch (playerState.getMode()) {
+            case WAITING:
+                mCallbacks.onWait();
+                break;
             case PLAYING:
                 mCallbacks.onPlay(playerState.getSoundItem());
                 break;
@@ -179,21 +183,48 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
     private class MyExoPlayerListener implements Player.Listener {
 
+        private boolean mIsStopped = true;
+
         @Override
         public void onPlaybackStateChanged(final int playbackState) {
-            if (Player.STATE_ENDED == playbackState) {
-                publishPlayerState(new PlayerState.Stopped());
-            } else {
-                Player.Listener.super.onPlaybackStateChanged(playbackState);
+
+            updateStoppedState();
+
+            switch (playbackState) {
+                case Player.STATE_IDLE:
+                    if (mIsStopped)
+                        publishPlayerState(new PlayerState.Stopped());
+                    break;
+
+                case Player.STATE_BUFFERING:
+                    publishPlayerState(new PlayerState.Waiting());
+                    break;
+
+                case Player.STATE_READY:
+                    // Сигнал "воспроизводится" будет отослан из метода "onIsPlayingChanged"
+                    break;
+
+                case Player.STATE_ENDED:
+                    publishPlayerState(new PlayerState.Stopped());
+                    break;
+
+                default:
+                    Player.Listener.super.onPlaybackStateChanged(playbackState);
             }
+        }
+
+        private void updateStoppedState() {
+            mIsStopped = !mExoPlayer.isPlaying();
         }
 
         @Override
         public void onIsPlayingChanged(boolean isPlaying) {
-            if (isPlaying)
-                publishPlayerState(new PlayerState.Playing(currentSoundItem()));
-            else
-                publishPlayerState(new PlayerState.Paused(currentSoundItem()));
+            if (!mIsStopped) {
+                if (isPlaying)
+                    publishPlayerState(new PlayerState.Playing(currentSoundItem()));
+                else
+                    publishPlayerState(new PlayerState.Paused(currentSoundItem()));
+            }
         }
 
         @Override
