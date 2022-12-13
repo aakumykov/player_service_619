@@ -51,5 +51,5 @@ dependencies {
     implementation "com.github.permissions-dispatcher:permissionsdispatcher:4.9.2"
     annotationProcessor "com.github.permissions-dispatcher:permissionsdispatcher-processor:4.9.2"
 
-    implementation 'com.github.aakumykov:player_service_619:0.0.10'
+    implementation 'com.github.aakumykov:player_service_619:0.0.11'
 }

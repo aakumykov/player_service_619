@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="PLAYER_SERVICE_notification_channel_name">Уведомления плеера</string>
     <string name="no_title">Нет заголовка</string>
     <string name="sound_track_paused">Приостановлено</string>
     <string name="sound_track_playing">Воспроизводится</string>
     <string name="playing_error">Ошибка воспроизведения</string>
+    <string name="sound_track_waiting_title">Подготовка воспроизведения</string>
+    <string name="sound_track_waiting_message" tools:ignore="TypographyEllipsis">...</string>
 </resources>

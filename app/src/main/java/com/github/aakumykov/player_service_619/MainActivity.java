@@ -222,6 +222,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     private void onPlayerStateChanged(PlayerState playerState) {
         switch (playerState.getMode()) {
+            case WAITING:
+                onPlayerWaiting();
+                break;
             case PLAYING:
                 onPlayerPlaying((PlayerState.Playing) playerState);
                 break;
@@ -237,6 +240,12 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             default:
                 throw new IllegalArgumentException("Неизвестное значение: "+playerState.getMode());
         }
+    }
+
+    private void onPlayerWaiting() {
+        hideError();
+        showTrackTitle(getString(R.string.player_waiting));
+        showWaitingButton();
     }
 
     private void onPlayerPlaying(PlayerState.Playing playerState) {
@@ -258,6 +267,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private void onPlayerError(PlayerState.Error errorPlayerState) {
         showError(ExceptionUtils.getErrorMessage(errorPlayerState.getError()));
         showPlayButton();
+    }
+
+    private void showWaitingButton() {
+        mBinding.playPauseButton.setImageResource(R.drawable.ic_waiting);
     }
 
     private void showPlayButton() {
