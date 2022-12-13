@@ -30,6 +30,13 @@ public abstract class PlayerState {
         return null;
     }
 
+
+    public static class Idle extends PlayerState {
+        protected Idle() {
+            super(Mode.IDLE, null);
+        }
+    }
+
     public static class Waiting extends PlayerState {
         protected Waiting() {
             super(Mode.WAITING, null);
@@ -70,6 +77,7 @@ public abstract class PlayerState {
 
 
     public enum Mode {
+        IDLE,
         WAITING,
         STOPPED,
         PLAYING,
