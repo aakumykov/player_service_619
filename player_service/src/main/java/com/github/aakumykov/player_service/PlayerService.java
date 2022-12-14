@@ -40,6 +40,10 @@ public class PlayerService extends Service {
             playerServiceFromBinder(binder).setContentIntent(intent);
     }
 
+    public static void stop(Context context) {
+        context.stopService(getIntent(context));
+    }
+
 
     @Nullable @Override
     public IBinder onBind(Intent intent) {
