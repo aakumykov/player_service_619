@@ -97,6 +97,11 @@ public class PlayerService extends Service {
     private class CustomPlayerCallbacks implements SoundPlayerCallbacks {
 
         @Override
+        public void onIdle() {
+            hidePersistentNotification();
+        }
+
+        @Override
         public void onWait() {
             showWaitingNotification();
         }
@@ -113,7 +118,7 @@ public class PlayerService extends Service {
 
         @Override
         public void onStop() {
-            hideNotification();
+            hidePersistentNotification();
         }
 
         @Override
@@ -137,10 +142,6 @@ public class PlayerService extends Service {
 
     private void showPauseNotification(String trackTitle) {
         showPersistentNotification(trackTitle, getString(R.string.sound_track_paused), R.drawable.ic_baseline_audiotrack_24);
-    }
-
-    private void hideNotification() {
-        hidePersistentNotification();
     }
 
     private void showErrorNotification(Throwable throwable) {

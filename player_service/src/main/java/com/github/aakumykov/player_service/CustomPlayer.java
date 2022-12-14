@@ -23,6 +23,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
     private static final String TAG = CustomPlayer.class.getSimpleName();
     private static final PlayerState DEFAULT_PLAYER_STATE = new PlayerState.Idle();
+    private PlayerState mCurrentPlayerState;
     private final ExoPlayer mExoPlayer;
     private final MyExoPlayerListener mListener;
     @Nullable private SoundPlayerCallbacks mCallbacks;
@@ -93,6 +94,11 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     }
 
     @Override
+    public boolean isPaused() {
+        return mCurrentPlayerState instanceof PlayerState.Paused;
+    }
+
+    @Override
     public boolean isStopped() {
         PlayerState playerState = null;
         if (null != mPlayerStateMutableLiveData)
@@ -121,43 +127,53 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
 
     private void publishPlayerState(@NonNull PlayerState playerState) {
-
-        if (null != mCallbacks)
-            mCallbacks.onPlayerStateChanged(playerState);
-
-        playerState2specificCallback(playerState);
-
-        if (null != mPlayerStateMutableLiveData)
-            mPlayerStateMutableLiveData.postValue(playerState);
+        mCurrentPlayerState = playerState;
+        sendStateToCallbacks();
+        sendStateToLiveData();
     }
 
-    private void playerState2specificCallback(@NonNull PlayerState playerState) {
+    private void sendStateToLiveData() {
+        if (null != mPlayerStateMutableLiveData)
+            mPlayerStateMutableLiveData.postValue(mCurrentPlayerState);
+    }
+
+    private void sendStateToCallbacks() {
 
         if (null == mCallbacks)
             return;
 
-        final PlayerState.Mode mode = playerState.getMode();
+        // "Общий" коллбек.
+        mCallbacks.onPlayerStateChanged(mCurrentPlayerState);
+
+        // "Конкретные" коллбеки.
+        final PlayerState.Mode mode = mCurrentPlayerState.getMode();
 
         switch (mode) {
             case IDLE:
                 mCallbacks.onIdle();
                 break;
+
             case WAITING:
                 mCallbacks.onWait();
                 break;
+
             case PLAYING:
-                mCallbacks.onPlay(playerState.getSoundItem());
+                mCallbacks.onPlay(mCurrentPlayerState.getSoundItem());
                 break;
+
             case PAUSED:
-                mCallbacks.onPause(playerState.getSoundItem());
+                mCallbacks.onPause(mCurrentPlayerState.getSoundItem());
                 break;
+
             case STOPPED:
                 mCallbacks.onStop();
                 break;
+
             case ERROR:
-                final PlayerState.Error errorPlayerState = (PlayerState.Error) playerState;
+                final PlayerState.Error errorPlayerState = (PlayerState.Error) mCurrentPlayerState;
                 mCallbacks.onError(errorPlayerState.getSoundItem(), errorPlayerState.getError());
                 break;
+
             default:
                 EnumUtils.throwUnknownValue(mode);
         }
@@ -191,6 +207,11 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
         private boolean mIsStopped = true;
 
+        private void updateStoppedState() {
+            mIsStopped = !mExoPlayer.isPlaying();
+        }
+
+
         @Override
         public void onPlaybackStateChanged(final int playbackState) {
 
@@ -200,6 +221,8 @@ public class CustomPlayer extends Binder implements SoundPlayer {
                 case Player.STATE_IDLE:
                     if (mIsStopped)
                         publishPlayerState(new PlayerState.Stopped());
+                    else
+                        publishPlayerState(new PlayerState.Idle());
                     break;
 
                 case Player.STATE_BUFFERING:
@@ -217,10 +240,6 @@ public class CustomPlayer extends Binder implements SoundPlayer {
                 default:
                     Player.Listener.super.onPlaybackStateChanged(playbackState);
             }
-        }
-
-        private void updateStoppedState() {
-            mIsStopped = !mExoPlayer.isPlaying();
         }
 
         @Override

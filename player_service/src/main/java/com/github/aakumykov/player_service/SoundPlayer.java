@@ -16,7 +16,9 @@ public interface SoundPlayer {
     void stop();
     void skipToNext();
     void skipToPrev();
+
     boolean isPlaying();
+    boolean isPaused();
     boolean isStopped();
 
     void release();
