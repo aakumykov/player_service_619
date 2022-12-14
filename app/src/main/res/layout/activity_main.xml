@@ -14,24 +14,6 @@
         android:text="Выбрать файл"
         android:textAllCaps="false" />
 
-    <Button
-        android:id="@+id/playDownloadsButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:backgroundTint="#4CAF50"
-        android:text="Играть из Downloads"
-        android:textAllCaps="false" />
-
-    <Button
-        android:id="@+id/playMusicButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:backgroundTint="#FF9800"
-        android:text="Играть из Music"
-        android:textAllCaps="false" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -67,14 +49,12 @@
             app:srcCompat="@drawable/ic_baseline_skip_next_24" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/infoView"
+    <com.google.android.exoplayer2.ui.StyledPlayerView
+        android:id="@+id/playerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:padding="8dp"
-        android:textAlignment="center"
-        tools:text="Название трека" />
+        app:show_buffering="when_playing"
+        app:show_shuffle_button="true"/>
 
     <ScrollView
         android:layout_width="match_parent"

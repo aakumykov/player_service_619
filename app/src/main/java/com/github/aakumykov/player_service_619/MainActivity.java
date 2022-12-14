@@ -51,12 +51,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         mBinding.pickFileButton.setOnClickListener(v ->
                 MainActivityPermissionsDispatcher.pickFileWithPermissionCheck(MainActivity.this));
 
-        mBinding.playDownloadsButton.setOnClickListener(v ->
-                MainActivityPermissionsDispatcher.playFilesFromDownloadsWithPermissionCheck(MainActivity.this));
-
-        mBinding.playMusicButton.setOnClickListener(v ->
-                MainActivityPermissionsDispatcher.playFilesFromMusicWithPermissionCheck(MainActivity.this));
-
         mBinding.playPauseButton.setOnClickListener(v -> {
 
             if (null == mSoundPlayer)
@@ -161,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
 
     private void processPickedFile(int resultCode, @Nullable Intent intent) {
+
         if (RESULT_OK != resultCode)
             return;
 
@@ -175,8 +170,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             return;
         }
 
-        if (null != mSoundPlayer)
+        if (null != mSoundPlayer) {
+            mBinding.playerView.setPlayer(mSoundPlayer);
             mSoundPlayer.play(new SoundItem(data));
+        }
     }
 
 
@@ -263,23 +260,19 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     private void onPlayerWaiting() {
         hideError();
-        showTrackTitle(getString(R.string.player_waiting));
         showWaitingButton();
     }
 
     private void onPlayerPlaying(PlayerState playerState) {
         hideError();
-        showTrackTitle(playerState.getTrackTitle());
         showPauseButton();
     }
 
     private void onPlayerPaused(PlayerState.Paused playerState) {
-        showTrackTitle(playerState.getTrackTitle());
         showPlayPauseButton();
     }
 
     private void onPlayerStopped() {
-        hideTrackTitle();
         showPlayButton();
     }
 
@@ -302,14 +295,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     private void showPlayPauseButton() {
         mBinding.playPauseButton.setImageResource(R.drawable.ic_play_pause);
-    }
-
-    private void showTrackTitle(String trackTitle) {
-        mBinding.infoView.setText(trackTitle);
-    }
-
-    private void hideTrackTitle() {
-        mBinding.infoView.setText("");
     }
 
 
