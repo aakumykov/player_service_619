@@ -240,7 +240,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 onPlayerWaiting();
                 break;
             case PLAYING:
-                onPlayerPlaying((PlayerState.Playing) playerState);
+            case RESUMED:
+                onPlayerPlaying(playerState);
                 break;
             case PAUSED:
                 onPlayerPaused((PlayerState.Paused) playerState);
@@ -266,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         showWaitingButton();
     }
 
-    private void onPlayerPlaying(PlayerState.Playing playerState) {
+    private void onPlayerPlaying(PlayerState playerState) {
         hideError();
         showTrackTitle(playerState.getTrackTitle());
         showPauseButton();
