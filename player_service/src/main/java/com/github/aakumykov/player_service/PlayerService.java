@@ -117,6 +117,11 @@ public class PlayerService extends Service {
         }
 
         @Override
+        public void onResume(@Nullable SoundItem soundItem) {
+            showPlayingNotification(titleFromSoundItem(soundItem));
+        }
+
+        @Override
         public void onStop() {
             hidePersistentNotification();
         }

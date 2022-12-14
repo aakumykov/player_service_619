@@ -1,6 +1,7 @@
 package com.github.aakumykov.player_service;
 
 import android.os.Binder;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -165,6 +166,10 @@ public class CustomPlayer extends Binder implements SoundPlayer {
                 mCallbacks.onPause(mCurrentPlayerState.getSoundItem());
                 break;
 
+            case RESUMED:
+                mCallbacks.onResume(mCurrentPlayerState.getSoundItem());
+                break;
+
             case STOPPED:
                 mCallbacks.onStop();
                 break;
@@ -219,10 +224,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
             switch (playbackState) {
                 case Player.STATE_IDLE:
-                    if (mIsStopped)
-                        publishPlayerState(new PlayerState.Stopped());
-                    else
-                        publishPlayerState(new PlayerState.Idle());
+                    processIdleEvent();
                     break;
 
                 case Player.STATE_BUFFERING:
@@ -230,6 +232,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
                     break;
 
                 case Player.STATE_READY:
+                    // Запускаю воспроизведение здесь, так как playWhenReady отключено для ExoPlayer-а.
                     // Сигнал "воспроизводится" будет отослан из метода "onIsPlayingChanged"
                     mExoPlayer.play();
                     break;
@@ -245,12 +248,10 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
         @Override
         public void onIsPlayingChanged(boolean isPlaying) {
-            if (!mIsStopped) {
                 if (isPlaying)
-                    publishPlayerState(new PlayerState.Playing(currentSoundItem()));
+                    processIsPlayingTrueEvent();
                 else
-                    publishPlayerState(new PlayerState.Paused(currentSoundItem()));
-            }
+                    processIsPlayingFalseEvent();
         }
 
         @Override
@@ -258,6 +259,78 @@ public class CustomPlayer extends Binder implements SoundPlayer {
             Exception e = (null == error) ? new RuntimeException("null") : error;
             publishPlayerState(new PlayerState.Error(currentSoundItem(), e));
         }
+    }
+
+    private void processIdleEvent() {
+        PlayerState playerState = mCurrentPlayerState;
+        final PlayerState.Mode mode = mCurrentPlayerState.getMode();
+        switch (mode) {
+            case PAUSED:
+                playerState = new PlayerState.Stopped();
+                break;
+            default:
+                playerState = new PlayerState.Idle();
+        }
+        publishPlayerState(playerState);
+    }
+
+    private void processIsPlayingTrueEvent() {
+
+        PlayerState playerState = mCurrentPlayerState;
+
+        final PlayerState.Mode mode = mCurrentPlayerState.getMode();
+
+        switch (mode) {
+            case IDLE:
+            case WAITING:
+            case STOPPED:
+            case ERROR:
+                playerState = new PlayerState.Playing(currentSoundItem());
+                break;
+
+            case PAUSED:
+                playerState = new PlayerState.Resumed(currentSoundItem());
+                break;
+
+            case PLAYING:
+            case RESUMED:
+                Log.d(TAG, "Пропускаю");
+                break;
+
+            default:
+                EnumUtils.throwUnknownValue(mode);
+        }
+
+        publishPlayerState(playerState);
+    }
+
+    private void processIsPlayingFalseEvent() {
+
+        final PlayerState.Mode mode = mCurrentPlayerState.getMode();
+        PlayerState playerState = mCurrentPlayerState;
+
+        switch (mode) {
+            case PLAYING:
+            case RESUMED:
+                playerState = new PlayerState.Paused(currentSoundItem());
+                break;
+
+            case WAITING:
+            case IDLE:
+                playerState = new PlayerState.Stopped();
+                break;
+
+            case PAUSED:
+            case STOPPED:
+            case ERROR:
+                Log.d(TAG, "Игнорирую");
+                break;
+
+            default:
+                EnumUtils.throwUnknownValue(mode);
+        }
+
+        publishPlayerState(playerState);
     }
 
     @Nullable
