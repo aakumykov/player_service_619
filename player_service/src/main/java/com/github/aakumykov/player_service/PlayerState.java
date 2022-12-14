@@ -49,6 +49,12 @@ public abstract class PlayerState {
         }
     }
 
+    public static class Resumed extends PlayerState {
+        protected Resumed(@Nullable SoundItem soundItem) {
+            super(Mode.RESUMED, soundItem);
+        }
+    }
+
     public static class Paused extends PlayerState {
         protected Paused(@Nullable SoundItem soundItem) {
             super(Mode.PAUSED, soundItem);
@@ -82,6 +88,7 @@ public abstract class PlayerState {
         STOPPED,
         PLAYING,
         PAUSED,
+        RESUMED,
         ERROR
     }
 
