@@ -32,7 +32,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
     public CustomPlayer(ExoPlayer exoPlayer) {
         mExoPlayer = exoPlayer;
-        mExoPlayer.setPlayWhenReady(true);
+        mExoPlayer.setPlayWhenReady(false);
 
         mListener = new MyExoPlayerListener();
         mExoPlayer.addListener(mListener);
@@ -231,6 +231,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
 
                 case Player.STATE_READY:
                     // Сигнал "воспроизводится" будет отослан из метода "onIsPlayingChanged"
+                    mExoPlayer.play();
                     break;
 
                 case Player.STATE_ENDED:
