@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,7 @@ import permissions.dispatcher.RuntimePermissions;
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
 
     private static final int PICK_FILE_REQUEST_CODE = R.id.pick_file_request_code;
+    private static final String TAG = MainActivity.class.getSimpleName();
     @Nullable private SoundPlayer mSoundPlayer;
     private ActivityMainBinding mBinding;
 
@@ -56,15 +58,21 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 MainActivityPermissionsDispatcher.playFilesFromMusicWithPermissionCheck(MainActivity.this));
 
         mBinding.playPauseButton.setOnClickListener(v -> {
-            if (null != mSoundPlayer) {
-                if (mSoundPlayer.isStopped())
-                    mSoundPlayer.playAgain();
-                else
-                    if (mSoundPlayer.isPlaying())
-                        mSoundPlayer.pause();
-                    else
-                        mSoundPlayer.resume();
+
+            if (null == mSoundPlayer)
+                return;
+
+            if (mSoundPlayer.isStopped()) {
+                mSoundPlayer.playAgain();
+                return;
             }
+
+            if (mSoundPlayer.isPlaying())
+                mSoundPlayer.pause();
+            else if (mSoundPlayer.isPaused())
+                mSoundPlayer.resume();
+            else
+                Log.e(TAG, "Плеер ни играет, ни на паузе О_о");
         });
 
         mBinding.stopButton.setOnClickListener(v -> {
