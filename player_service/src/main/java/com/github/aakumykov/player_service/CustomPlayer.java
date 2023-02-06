@@ -26,7 +26,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     private static final PlayerState DEFAULT_PLAYER_STATE = new PlayerState.Idle();
     private PlayerState mCurrentPlayerState;
     private final ExoPlayer mExoPlayer;
-    private final MyExoPlayerListener mListener;
+    private final ExoPlayerListener mListener;
     @Nullable private SoundPlayerCallbacks mCallbacks;
     @Nullable private MutableLiveData<PlayerState> mPlayerStateMutableLiveData;
     private final SortedMap<String, SoundItem> mSoundItemMap = new TreeMap<>();
@@ -35,7 +35,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
         mExoPlayer = exoPlayer;
         mExoPlayer.setPlayWhenReady(false);
 
-        mListener = new MyExoPlayerListener();
+        mListener = new ExoPlayerListener();
         mExoPlayer.addListener(mListener);
     }
 
@@ -208,7 +208,7 @@ public class CustomPlayer extends Binder implements SoundPlayer {
     }
 
 
-    private class MyExoPlayerListener implements Player.Listener {
+    private class ExoPlayerListener implements Player.Listener {
 
         private boolean mIsStopped = true;
 
