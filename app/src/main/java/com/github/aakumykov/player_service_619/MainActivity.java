@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -13,6 +14,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.aakumykov.player_service.PlayerService;
@@ -48,14 +50,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
-        mBinding.pickFileButton.setOnClickListener(v ->
-                MainActivityPermissionsDispatcher.pickFileWithPermissionCheck(MainActivity.this));
-
-        mBinding.playDownloadsButton.setOnClickListener(v ->
-                MainActivityPermissionsDispatcher.playFilesFromDownloadsWithPermissionCheck(MainActivity.this));
-
-        mBinding.playMusicButton.setOnClickListener(v ->
-                MainActivityPermissionsDispatcher.playFilesFromMusicWithPermissionCheck(MainActivity.this));
+        mBinding.pickFileButton.setOnClickListener(v -> pickFile());
+        mBinding.playDownloadsButton.setOnClickListener(v -> playFilesFromDownloads());
+        mBinding.playMusicButton.setOnClickListener(v -> playFilesFromMusic());
 
         mBinding.playPauseButton.setOnClickListener(v -> {
 
@@ -97,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     protected void onStart() {
         super.onStart();
         bindPlayerService();
+        askForNotificationsPermission();
     }
 
     @Override
@@ -139,24 +137,89 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
     }
 
-    @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+
     void pickFile() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+            MainActivityPermissionsDispatcher.pickFileOldWithPermissionCheck(this);
+        else
+            MainActivityPermissionsDispatcher.pickFileNewWithPermissionCheck(this);
+    }
+
+    @NeedsPermission({android.Manifest.permission.READ_EXTERNAL_STORAGE})
+    void pickFileOld() {
+        openFileSelectionDialog();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    @NeedsPermission({Manifest.permission.READ_MEDIA_AUDIO})
+    void pickFileNew() {
+        openFileSelectionDialog();
+    }
+
+    private void openFileSelectionDialog() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("audio/*");
         startActivityForResult(intent, PICK_FILE_REQUEST_CODE);
     }
 
+
+    private void playFilesFromDownloads() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+            MainActivityPermissionsDispatcher.playFilesFromDownloadsOldWithPermissionCheck(this);
+        else
+            MainActivityPermissionsDispatcher.playFilesFromDownloadsNewWithPermissionCheck(this);
+    }
+
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-    void playFilesFromDownloads() {
+    void playFilesFromDownloadsOld() {
+        playFilesFromDownloadsReal();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    @NeedsPermission({Manifest.permission.READ_MEDIA_AUDIO})
+    void playFilesFromDownloadsNew() {
+        playFilesFromDownloadsReal();
+    }
+
+    private void playFilesFromDownloadsReal() {
         playFileFromDir("mp3",
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
     }
 
+
+    private void playFilesFromMusic() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+            MainActivityPermissionsDispatcher.playFilesFromMusicOldWithPermissionCheck(this);
+        else
+            MainActivityPermissionsDispatcher.playFilesFromMusicNewWithPermissionCheck(this);
+    }
+
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-    void playFilesFromMusic() {
+    void playFilesFromMusicOld() {
+        playFilesFromMusicReal();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    @NeedsPermission({Manifest.permission.READ_MEDIA_AUDIO})
+    void playFilesFromMusicNew() {
+        playFilesFromMusicReal();
+    }
+
+    private void playFilesFromMusicReal() {
         playFileFromDir("mp3",
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC));
+    }
+
+
+    private void playFileFromDir(@NonNull final String fileExtension, @NonNull final File directory) {
+        if (null != mSoundPlayer)
+            mSoundPlayer.play(
+                    listFilesFromDir(fileExtension, directory).stream()
+                            .map(file -> new SoundItem(file.getName(), file.getName(), file))
+                            .collect(Collectors.toList()));
+        else
+            showError("Не найден SoundPlayer");
     }
 
 
@@ -179,16 +242,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             mSoundPlayer.play(new SoundItem(data));
     }
 
-
-    private void playFileFromDir(@NonNull final String fileExtension, @NonNull final File directory) {
-        if (null != mSoundPlayer)
-            mSoundPlayer.play(
-                    listFilesFromDir(fileExtension, directory).stream()
-                    .map(file -> new SoundItem(file.getName(), file.getName(), file))
-                    .collect(Collectors.toList()));
-        else
-            showError("Не найден SoundPlayer");
-    }
 
     private List<File> listFilesFromDir(final String fileExtension, final File dir) {
 
@@ -318,4 +371,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     }
 
+
+    private void askForNotificationsPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            MainActivityPermissionsDispatcher.requestAllowingNotificationsWithPermissionCheck(this);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    @NeedsPermission(Manifest.permission.POST_NOTIFICATIONS)
+    void requestAllowingNotifications() {}
 }
