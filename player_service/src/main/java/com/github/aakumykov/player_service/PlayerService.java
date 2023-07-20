@@ -4,6 +4,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 
 import androidx.annotation.DrawableRes;
@@ -67,7 +68,14 @@ public class PlayerService extends Service {
 
     public void setContentIntent(@NonNull Intent contentIntent) {
         mContentIntent = PendingIntent.getActivity(this, OPEN_ACTIVITY_REQUEST_CODE,
-                contentIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                contentIntent, pendingIntentFlags());
+    }
+
+    private int pendingIntentFlags() {
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            flag = flag | PendingIntent.FLAG_IMMUTABLE;
+        return flag;
     }
 
 
